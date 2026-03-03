@@ -1,4 +1,4 @@
-# Name: tdm-utils.py
+# Name: utils.py
 # Purpose: Uitility functions for the tdm-ghg-calculator. 
 # Author: David Wasserman
 # Last Modified: 3/8/20232026
