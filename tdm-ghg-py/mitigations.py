@@ -63,4 +63,4 @@ def t20_expand_bikeway_network(existing_bikeway_miles_in_community,
     numerator = bike_way_ratio * bike_mode_share * average_oneway_bicycle_trip_length * elasticity_of_bike_commuters_per_pop
     denominator = vehicle_mode_share * average_oneway_vehicle_trip_length
     ghg_reduction = -1 * numerator/denominator
-    return ghg_reduction
+    return max(ghg_reduction,-.005)
