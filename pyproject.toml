@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "tdm-ghg"
+version = "0.1.0"
+description = "GHG reduction calculator for transportation demand management measures (CAPCOA 2024 Handbook)"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "David Wasserman" }]
+requires-python = ">=3.6"
+dependencies = [
+    "pandas>=1.0",
+]
+keywords = ["ghg", "transportation", "climate", "tdm", "capcoa", "emissions"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tdm_ghg*"]
