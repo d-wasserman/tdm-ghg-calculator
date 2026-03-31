@@ -1,6 +1,4 @@
 """Unit tests for tdm-calcs library."""
-from unittest.mock import patch, MagicMock
-
 import numpy as np
 import pytest
 from math import isclose
