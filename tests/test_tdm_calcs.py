@@ -52,8 +52,8 @@ class TestMitigations:
     def test_t3_provide_tod_strategy(self):
         """Test the tod strategy."""
         # Mock the input data
-        transit_mode_share = 4
-        auto_mode_share = -90
+        transit_mode_share = .04
+        auto_mode_share = .9
         ratio = 4.9
         # Expected result based on the mock data
         expected_result = -0.272
