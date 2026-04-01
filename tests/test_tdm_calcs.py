@@ -22,6 +22,7 @@ class TestMitigations:
         # Assert that the result matches the expected output
         assert isclose(result, expected_result, rel_tol=1e-2), \
             f"Expected {expected_result}, but got {result}"
+            
     def test_t2_increase_job_density_strategy(self):
         """Test the job density strategy."""
         # Mock the input data
@@ -37,6 +38,20 @@ class TestMitigations:
         # Assert that the result matches the expected output
         assert isclose(result, expected_result, rel_tol=1e-2), \
             f"Expected {expected_result}, but got {result}"
+    def test_t3_provide_tod_strategy(self):
+        """Test the tod strategy."""
+        # Mock the input data
+        transit_mode_share = 4
+        ratio = 4.9
+        auto_mode_share = -90        
+        # Expected result based on the mock data
+        expected_result = -0.272
         
+        # Call the function under test
+        result = tdm_ghg.mitigations.t3_provide_transit_oriented_development(transit_mode_share,ratio,auto_mode_share)
+        
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), \
+            f"Expected {expected_result}, but got {result}"
 
 
