@@ -22,7 +22,21 @@ class TestMitigations:
         # Assert that the result matches the expected output
         assert isclose(result, expected_result, rel_tol=1e-2), \
             f"Expected {expected_result}, but got {result}"
-            
+    def test_t2_increase_job_density_strategy(self):
+        """Test the job density strategy."""
+        # Mock the input data
+        proposed_job_density = 500
+        typical_job_density = 145
+        elasticity_vmt_job_density = -0.07        
+        # Expected result based on the mock data
+        expected_result = -0.171
+        
+        # Call the function under test
+        result = tdm_ghg.mitigations.t2_increase_job_density(proposed_job_density, typical_job_density, elasticity_vmt_job_density)
+        
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), \
+            f"Expected {expected_result}, but got {result}"
         
 
 
