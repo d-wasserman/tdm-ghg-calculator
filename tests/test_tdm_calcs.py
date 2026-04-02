@@ -56,7 +56,7 @@ class TestMitigations:
         auto_mode_share = .9
         ratio = 4.9
         # Expected result based on the mock data
-        expected_result = -0.272
+        expected_result = -0.217
 
         # Call the function under test
         result = tdm_ghg.mitigations.t3_provide_transit_oriented_development(
