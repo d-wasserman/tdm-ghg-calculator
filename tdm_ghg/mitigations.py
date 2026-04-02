@@ -259,9 +259,253 @@ def t55_infill_development(
 
 # ==============================================================================
 # TRIP REDUCTION PROGRAMS SUBSECTOR (Project/Site — Employee Commute)
-# Measure T-10
+# Measures T-5, T-6, T-7, T-8, T-9, T-10
 # Subsector cap: 45% commute VMT (across T-5 through T-13)
 # ==============================================================================
+
+@register_measure(
+    measure_id="T-5",
+    name="Implement Commute Trip Reduction Program (Voluntary)",
+    subsector="trip_reduction",
+    scale=_PS,
+    location_types={_U, _S},
+    measure_max=0.04,
+    # T-5 covers the same activities as T-6 (mandatory version); select one.
+    # T-5 also bundles T-7 through T-11; combining would double-count.
+    mutually_exclusive_with={"T-6", "T-7", "T-8", "T-9", "T-10", "T-11"},
+)
+def t5_implement_voluntary_commute_trip_reduction(
+        pct_employees_eligible,
+        pct_reduction_commute_vmt=-0.04):
+    """Measure T-5: Implement Commute Trip Reduction Program (Voluntary).
+    Implements a voluntary CTR program with employers, encouraging alternatives
+    to single-occupancy vehicles (carpooling, transit, walking, biking).
+    Applies to project/site employee commute VMT.
+
+    Formula: A = B * C
+
+    Parameters
+    ----------
+    pct_employees_eligible : float
+        Percent of employees eligible for the program (as a decimal,
+        e.g., 1.0 for 100%). Excludes night-shift or drive-required workers.
+    pct_reduction_commute_vmt : float, optional
+        Percent reduction in commute VMT for eligible employees (as a decimal).
+        Default is -0.04 (-4%), per Boarnet et al. 2014 low-end estimate.
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from employee commute VMT
+        (as a decimal). Capped at -0.04 (-4%). Negative values indicate
+        reductions.
+    """
+    a = pct_employees_eligible * pct_reduction_commute_vmt
+    return max(a, -0.04)
+
+
+@register_measure(
+    measure_id="T-6",
+    name="Implement Commute Trip Reduction Program (Mandatory)",
+    subsector="trip_reduction",
+    scale=_PS,
+    location_types={_U, _S},
+    measure_max=0.26,
+    # T-6 covers the same activities as T-5 (voluntary version); select one.
+    # T-6 also bundles T-7 through T-11; combining would double-count.
+    mutually_exclusive_with={"T-5", "T-7", "T-8", "T-9", "T-10", "T-11"},
+)
+def t6_implement_mandatory_commute_trip_reduction(
+        pct_employees_eligible,
+        pct_reduction_vehicle_mode_share=-0.26,
+        adjustment_vehicle_mode_to_vmt=1.0):
+    """Measure T-6: Implement Commute Trip Reduction Program (Mandatory).
+    Implements a mandatory CTR program with employer monitoring requirements.
+    Based on Genentech South SF campus data (2006-2014): vehicle mode share
+    dropped from ~90% to ~64% (26% reduction). Applies to employee commute VMT.
+
+    Formula: A = B * C * D
+
+    Parameters
+    ----------
+    pct_employees_eligible : float
+        Percent of employees eligible for the program (as a decimal,
+        e.g., 1.0 for 100%). Usually 100% for mandatory programs.
+    pct_reduction_vehicle_mode_share : float, optional
+        Percent reduction in vehicle mode share of commute trips (as a decimal).
+        Default is -0.26 (-26%), per Nelson/Nygaard Consulting Associates 2015.
+    adjustment_vehicle_mode_to_vmt : float, optional
+        Adjustment factor from vehicle mode share to commute VMT. Default is 1.0
+        (assumes percentage reduction in trips equals reduction in VMT).
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from employee commute VMT
+        (as a decimal). Capped at -0.26 (-26%). Negative values indicate
+        reductions.
+    """
+    a = (pct_employees_eligible
+         * pct_reduction_vehicle_mode_share
+         * adjustment_vehicle_mode_to_vmt)
+    return max(a, -0.26)
+
+
+@register_measure(
+    measure_id="T-7",
+    name="Implement Commute Trip Reduction Marketing",
+    subsector="trip_reduction",
+    scale=_PS,
+    location_types={_U, _S},
+    measure_max=0.04,
+    # Cannot be combined with T-5 or T-6 (bundled programs); may pair with T-8 to T-13.
+    mutually_exclusive_with={"T-5", "T-6"},
+)
+def t7_implement_commute_trip_reduction_marketing(
+        pct_employees_eligible,
+        pct_reduction_vehicle_trips=-0.04,
+        adjustment_vehicle_trips_to_vmt=1.0):
+    """Measure T-7: Implement Commute Trip Reduction Marketing.
+    Markets alternative travel options to employees via onsite/online commuter
+    information services, encouraging shift away from single-occupancy vehicles.
+    Applies to project/site employee commute VMT.
+
+    Formula: A = B * C * D
+
+    Parameters
+    ----------
+    pct_employees_eligible : float
+        Percent of employees eligible for the program (as a decimal,
+        e.g., 1.0 for 100%). Usually 100%; excludes drive-required workers.
+    pct_reduction_vehicle_trips : float, optional
+        Percent reduction in employee commute vehicle trips (as a decimal).
+        Default is -0.04 (-4%), per TRB 2010 low-end of 4-5% range.
+    adjustment_vehicle_trips_to_vmt : float, optional
+        Adjustment factor from vehicle trips to VMT. Default is 1.0
+        (assumes all trip lengths are equal; reduction in trips equals VMT).
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from employee commute VMT
+        (as a decimal). Capped at -0.04 (-4%). Negative values indicate
+        reductions.
+    """
+    a = (pct_employees_eligible
+         * pct_reduction_vehicle_trips
+         * adjustment_vehicle_trips_to_vmt)
+    return max(a, -0.04)
+
+
+@register_measure(
+    measure_id="T-8",
+    name="Provide Ridesharing Program",
+    subsector="trip_reduction",
+    scale=_PS,
+    location_types={_U, _S},
+    measure_max=0.08,
+    # Cannot be combined with T-5 or T-6; may pair with T-7 and T-9 to T-13.
+    mutually_exclusive_with={"T-5", "T-6"},
+)
+def t8_provide_ridesharing_program(
+        pct_employees_eligible,
+        pct_reduction_commute_vmt=-0.08):
+    """Measure T-8: Provide Ridesharing Program.
+    Establishes a ridesharing program (carpool/vanpool) with a permanent
+    transportation management association. Designated parking, loading areas,
+    and ride-coordination app/website are required. Applies to employee commute VMT.
+
+    Formula: A = B * C
+
+    Parameters
+    ----------
+    pct_employees_eligible : float
+        Percent of employees eligible for the program (as a decimal,
+        e.g., 1.0 for 100%). Usually 100%; excludes night-shift workers.
+    pct_reduction_commute_vmt : float, optional
+        Percent reduction in employee commute VMT by place type (as a decimal).
+        Default is -0.08 (-8%), corresponding to urban place type per SANDAG 2019
+        Table T-8.1. Not applicable in rural areas.
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from employee commute VMT
+        (as a decimal). Capped at -0.08 (-8%). Negative values indicate
+        reductions.
+    """
+    a = pct_employees_eligible * pct_reduction_commute_vmt
+    return max(a, -0.08)
+
+
+@register_measure(
+    measure_id="T-9",
+    name="Implement Subsidized or Discounted Transit Program",
+    subsector="trip_reduction",
+    scale=_PS,
+    location_types={_U, _S},
+    measure_max=0.055,
+    # Cannot be combined with T-5 or T-6; may pair with T-7, T-8, T-10 to T-13.
+    mutually_exclusive_with={"T-5", "T-6"},
+)
+def t9_implement_subsidized_transit_program(
+        transit_fare,
+        subsidy_amount,
+        pct_eligible,
+        pct_project_vmt_from_employees,
+        transit_mode_share,
+        elasticity_transit_boardings_fare=-0.43,
+        pct_transit_replacing_vehicle=0.50,
+        conversion_vehicle_trips_to_vmt=1.0):
+    """Measure T-9: Implement Subsidized or Discounted Transit Program.
+    Provides subsidized/discounted or free transit passes for employees and/or
+    residents, improving transit competitiveness against driving and reducing VMT.
+    Site must be within 1 mile of high-quality transit or 0.5 mile of local transit.
+    Applies to employee/resident vehicles accessing the site.
+
+    Formula: A = (C / B) * G * D * E * F * H * I
+
+    Parameters
+    ----------
+    transit_fare : float
+        Average transit fare without subsidy [$]. May be per-ride or monthly pass.
+    subsidy_amount : float
+        Subsidy amount provided to employees/residents [$]. Same unit as transit_fare.
+    pct_eligible : float
+        Percent of employees/residents eligible for the subsidy (as a decimal,
+        e.g., 1.0 for 100%). Accounts for workers without subsidy benefits.
+    pct_project_vmt_from_employees : float
+        Percent of project-generated VMT from employees/residents (as a decimal).
+        Use 1.0 for office or pure residential; less for visitor-intensive uses.
+    transit_mode_share : float
+        Transit mode share for work trips or all trips in the project area
+        (as a decimal). From FHWA 2017 NHTS Table T-3.1 or T-9.1 by CBSA.
+    elasticity_transit_boardings_fare : float, optional
+        Elasticity of transit boardings with respect to transit fare price.
+        Default is -0.43 (Taylor et al. 2008; 0.43% decrease per 1% fare increase).
+    pct_transit_replacing_vehicle : float, optional
+        Fraction of new transit trips that would otherwise be made by vehicle.
+        Default is 0.50 (50%), per Handy & Boarnet 2013 for high-quality BRT.
+    conversion_vehicle_trips_to_vmt : float, optional
+        Conversion factor from vehicle trips to VMT. Default is 1.0 (assumes
+        all trip lengths are equal).
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from employee/resident vehicles
+        accessing the site (as a decimal). Capped at -0.055 (-5.5%). Negative
+        values indicate reductions.
+    """
+    a = ((subsidy_amount / transit_fare)
+         * elasticity_transit_boardings_fare
+         * pct_eligible
+         * pct_project_vmt_from_employees
+         * transit_mode_share
+         * pct_transit_replacing_vehicle
+         * conversion_vehicle_trips_to_vmt)
+    return max(a, -0.055)
+
 
 @register_measure(
     measure_id="T-10",

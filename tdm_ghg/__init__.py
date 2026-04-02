@@ -46,7 +46,12 @@ Land Use (Project/Site, T-1 through T-4, T-55): cap 65%
     t55_infill_development                [residential; excl. T-1 and T-3]
 
 Trip Reduction Programs (Project/Site, T-5 through T-13): cap 45% commute VMT
-    t10_provide_end_of_trip_bicycle_facilities
+    t5_implement_voluntary_commute_trip_reduction   [excl. T-6, T-7–T-11]
+    t6_implement_mandatory_commute_trip_reduction   [excl. T-5, T-7–T-11]
+    t7_implement_commute_trip_reduction_marketing   [excl. T-5, T-6]
+    t8_provide_ridesharing_program                  [excl. T-5, T-6]
+    t9_implement_subsidized_transit_program         [excl. T-5, T-6]
+    t10_provide_end_of_trip_bicycle_facilities      [excl. T-5, T-6]
 
 Neighborhood Design (Plan/Community, T-18 through T-22-D): cap 10%
     t20_expand_bikeway_network
@@ -84,6 +89,11 @@ from tdm_ghg.mitigations import (
     t3_provide_transit_oriented_development,
     t4_integrate_affordable_housing,
     t55_infill_development,
+    t5_implement_voluntary_commute_trip_reduction,
+    t6_implement_mandatory_commute_trip_reduction,
+    t7_implement_commute_trip_reduction_marketing,
+    t8_provide_ridesharing_program,
+    t9_implement_subsidized_transit_program,
     t10_provide_end_of_trip_bicycle_facilities,
     t20_expand_bikeway_network,
     t22a_implement_pedal_bikeshare,
@@ -129,6 +139,11 @@ __all__ = [
     "t3_provide_transit_oriented_development",
     "t4_integrate_affordable_housing",
     "t55_infill_development",
+    "t5_implement_voluntary_commute_trip_reduction",
+    "t6_implement_mandatory_commute_trip_reduction",
+    "t7_implement_commute_trip_reduction_marketing",
+    "t8_provide_ridesharing_program",
+    "t9_implement_subsidized_transit_program",
     "t10_provide_end_of_trip_bicycle_facilities",
     "t20_expand_bikeway_network",
     "t22a_implement_pedal_bikeshare",

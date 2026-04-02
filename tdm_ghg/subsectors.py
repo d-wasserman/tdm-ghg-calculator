@@ -141,8 +141,13 @@ def run_trip_reduction(context: TDMContext) -> float:
     """Combined reduction for the Trip Reduction Programs subsector.
 
     Applicable measures:
-      - Project/Site: T-10 (cap 45% commute VMT)
+      - Project/Site: T-5, T-6, T-7, T-8, T-9, T-10 (cap 45% commute VMT)
       - Plan/Community: (cap 2.3% commute VMT)
+
+    Notes
+    -----
+    T-5 and T-6 are mutually exclusive (select one). T-5 or T-6 also
+    bundle T-7 through T-11, so they cannot be combined with those measures.
     """
     return run_subsector(context, "trip_reduction")
 
