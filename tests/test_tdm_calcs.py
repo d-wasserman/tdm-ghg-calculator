@@ -87,6 +87,117 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
+    # def test_t5_implement_voluntary_commute_trip_reduction(self):
+    #     """Test the voluntary CTR program strategy."""
+    #     # Mock the input data
+    #     pct_employees_eligible = 1.0
+    #     pct_reduction_commute_vmt = -0.04
+    #     # Expected result based on the mock data
+    #     expected_result = -0.04
+
+    #     # Call the function under test
+    #     result = tdm_ghg.mitigations.t5_implement_voluntary_commute_trip_reduction(
+    #         pct_employees_eligible,
+    #         pct_reduction_commute_vmt,
+    #     )
+
+    #     # Assert that the result matches the expected output
+    #     assert isclose(result, expected_result, rel_tol=1e-2), (
+    #         f"Expected {expected_result}, but got {result}"
+    #     )
+
+    # def test_t6_implement_mandatory_commute_trip_reduction(self):
+    #     """Test the mandatory CTR program strategy."""
+    #     # Mock the input data
+    #     pct_employees_eligible = 1.0
+    #     pct_reduction_vehicle_mode_share = -0.26
+    #     adjustment_vehicle_mode_to_vmt = 1.0
+    #     # Expected result based on the mock data
+    #     expected_result = -0.26
+
+    #     # Call the function under test
+    #     result = tdm_ghg.mitigations.t6_implement_mandatory_commute_trip_reduction(
+    #         pct_employees_eligible,
+    #         pct_reduction_vehicle_mode_share,
+    #         adjustment_vehicle_mode_to_vmt,
+    #     )
+
+    #     # Assert that the result matches the expected output
+    #     assert isclose(result, expected_result, rel_tol=1e-2), (
+    #         f"Expected {expected_result}, but got {result}"
+    #     )
+
+    # def test_t7_implement_commute_trip_reduction_marketing(self):
+    #     """Test the CTR marketing strategy."""
+    #     # Mock the input data
+    #     pct_employees_eligible = 1.0
+    #     pct_reduction_vehicle_trips = -0.04
+    #     adjustment_vehicle_trips_to_vmt = 1.0
+    #     # Expected result based on the mock data
+    #     expected_result = -0.04
+
+    #     # Call the function under test
+    #     result = tdm_ghg.mitigations.t7_implement_commute_trip_reduction_marketing(
+    #         pct_employees_eligible,
+    #         pct_reduction_vehicle_trips,
+    #         adjustment_vehicle_trips_to_vmt,
+    #     )
+
+    #     # Assert that the result matches the expected output
+    #     assert isclose(result, expected_result, rel_tol=1e-2), (
+    #         f"Expected {expected_result}, but got {result}"
+    #     )
+
+    # def test_t8_provide_ridesharing_program(self):
+    #     """Test the ridesharing program strategy."""
+    #     # Mock the input data
+    #     pct_employees_eligible = 0.50
+    #     pct_reduction_commute_vmt = -0.08  # urban place type, SANDAG 2019
+    #     # Expected result based on the mock data
+    #     expected_result = -0.04
+
+    #     # Call the function under test
+    #     result = tdm_ghg.mitigations.t8_provide_ridesharing_program(
+    #         pct_employees_eligible,
+    #         pct_reduction_commute_vmt,
+    #     )
+
+    #     # Assert that the result matches the expected output
+    #     assert isclose(result, expected_result, rel_tol=1e-2), (
+    #         f"Expected {expected_result}, but got {result}"
+    #     )
+
+    # def test_t9_implement_subsidized_transit_program(self):
+    #     """Test the subsidized transit program strategy."""
+    #     # Mock the input data (SF-Oakland CBSA handbook example)
+    #     transit_fare = 100.0
+    #     subsidy_amount = 100.0
+    #     pct_eligible = 1.0
+    #     pct_project_vmt_from_employees = 1.0
+    #     transit_mode_share = 0.256  # SF-Oakland-Hayward CBSA work trips
+    #     elasticity_transit_boardings_fare = -0.43
+    #     pct_transit_replacing_vehicle = 0.50
+    #     conversion_vehicle_trips_to_vmt = 1.0
+    #     # Expected result based on the mock data
+    #     expected_result = -0.055
+
+    #     # Call the function under test
+    #     result = tdm_ghg.mitigations.t9_implement_subsidized_transit_program(
+    #         transit_fare,
+    #         subsidy_amount,
+    #         pct_eligible,
+    #         pct_project_vmt_from_employees,
+    #         transit_mode_share,
+    #         elasticity_transit_boardings_fare,
+    #         pct_transit_replacing_vehicle,
+    #         conversion_vehicle_trips_to_vmt,
+    #     )
+
+    #     # Assert that the result matches the expected output
+    #     assert isclose(result, expected_result, rel_tol=1e-2), (
+    #         f"Expected {expected_result}, but got {result}"
+    #     )
+
     # def test_t55_infill_development(self):
     #     """Test the infill development strategy."""
     #     # Mock the input data
