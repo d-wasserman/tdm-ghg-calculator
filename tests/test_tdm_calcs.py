@@ -87,24 +87,24 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t5_implement_voluntary_commute_trip_reduction(self):
-    #     """Test the voluntary CTR program strategy."""
-    #     # Mock the input data
-    #     pct_employees_eligible = 1.0
-    #     pct_reduction_commute_vmt = -0.04
-    #     # Expected result based on the mock data
-    #     expected_result = -0.04
+    def test_t5_implement_voluntary_commute_trip_reduction(self):
+        """Test the voluntary CTR program strategy."""
+        # Mock the input data
+        pct_employees_eligible = .88
+        pct_reduction_commute_vmt = -0.04
+        # Expected result based on the mock data
+        expected_result = -0.0352
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t5_implement_voluntary_commute_trip_reduction(
-    #         pct_employees_eligible,
-    #         pct_reduction_commute_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t5_implement_voluntary_commute_trip_reduction(
+            pct_employees_eligible,
+            pct_reduction_commute_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t6_implement_mandatory_commute_trip_reduction(self):
     #     """Test the mandatory CTR program strategy."""
