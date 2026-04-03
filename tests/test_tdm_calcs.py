@@ -167,36 +167,37 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t9_implement_subsidized_transit_program(self):
-    #     """Test the subsidized transit program strategy."""
-    #     # Mock the input data (SF-Oakland CBSA handbook example)
-    #     transit_fare = 100.0
-    #     subsidy_amount = 100.0
-    #     pct_eligible = 1.0
-    #     pct_project_vmt_from_employees = 1.0
-    #     transit_mode_share = 0.256  # SF-Oakland-Hayward CBSA work trips
-    #     elasticity_transit_boardings_fare = -0.43
-    #     pct_transit_replacing_vehicle = 0.50
-    #     conversion_vehicle_trips_to_vmt = 1.0
-    #     # Expected result based on the mock data
-    #     expected_result = -0.055
+    def test_t9_implement_subsidized_transit_program(self):
+        """Test the subsidized transit program strategy."""
+        # Mock the input data (SF-Oakland CBSA handbook example)
+        transit_fare = 100.0
+        subsidy_amount =  80
+        pct_eligible = .95
+        pct_project_vmt_from_employees = 1.0
+        transit_mode_share = 0.2  # SF-Oakland-Hayward CBSA work trips
+        elasticity_transit_boardings_fare = -0.43
+        pct_transit_replacing_vehicle = 0.50
+        conversion_vehicle_trips_to_vmt = 1.0
+        # Expected result based on the mock data
+        expected_result = -0.026144
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t9_implement_subsidized_transit_program(
-    #         transit_fare,
-    #         subsidy_amount,
-    #         pct_eligible,
-    #         pct_project_vmt_from_employees,
-    #         transit_mode_share,
-    #         elasticity_transit_boardings_fare,
-    #         pct_transit_replacing_vehicle,
-    #         conversion_vehicle_trips_to_vmt,
-    #     )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t9_implement_subsidized_transit_program(
+            transit_fare,
+            subsidy_amount,
+            pct_eligible,
+            pct_project_vmt_from_employees,
+            transit_mode_share,
+            elasticity_transit_boardings_fare,
+            pct_transit_replacing_vehicle,
+            conversion_vehicle_trips_to_vmt,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t11_provide_employer_sponsored_vanpool(self):
     #     """Test the employer-sponsored vanpool strategy."""
