@@ -46,18 +46,46 @@ Land Use (Project/Site, T-1 through T-4, T-55): cap 65%
     t55_infill_development                [residential; excl. T-1 and T-3]
 
 Trip Reduction Programs (Project/Site, T-5 through T-13): cap 45% commute VMT
-    t10_provide_end_of_trip_bicycle_facilities
+    t5_implement_voluntary_commute_trip_reduction   [excl. T-6, T-7–T-11]
+    t6_implement_mandatory_commute_trip_reduction   [excl. T-5, T-7–T-11]
+    t7_implement_commute_trip_reduction_marketing   [excl. T-5, T-6]
+    t8_provide_ridesharing_program                  [excl. T-5, T-6]
+    t9_implement_subsidized_transit_program         [excl. T-5, T-6]
+    t10_provide_end_of_trip_bicycle_facilities      [excl. T-5, T-6]
+    t11_provide_employer_sponsored_vanpool          [excl. T-5, T-6]
+    t12_price_workplace_parking                     [excl. T-13]
+    t13_implement_employee_parking_cash_out         [excl. T-12]
+
+Parking Management (Project/Site, T-14 through T-16): cap 35%
+    t14_provide_ev_charging_infrastructure
+    t15_limit_residential_parking_supply            [residential only]
+    t16_unbundle_residential_parking_costs          [residential only]
+
+Land Use (Plan/Community, T-17): cap 30%
+    t17_improve_street_connectivity
 
 Neighborhood Design (Plan/Community, T-18 through T-22-D): cap 10%
+    t18_provide_pedestrian_network_improvement
     t20_expand_bikeway_network
+    t21a_implement_conventional_carshare
+    t21b_implement_electric_carshare
     t22a_implement_pedal_bikeshare
     t22b_implement_electric_bikeshare
+    t22c_implement_scootershare
     t22d_transition_conventional_to_electric_bikeshare
 
+Trip Reduction Programs (Plan/Community, T-23): cap 2.3% commute VMT
+    t23_provide_community_based_travel_planning     [residential only]
+
+Parking Management (Plan/Community, T-24): cap 30%
+    t24_implement_market_price_public_parking
+
 Transit (Plan/Community, T-25 through T-29, T-46): cap 15%
+    t25_extend_transit_network_coverage_or_hours
     t26_increase_transit_service_frequency    [excl. T-28 when BRT]
     t27_implement_transit_supportive_roadway_treatments  [excl. T-28]
     t28_provide_bus_rapid_transit             [excl. T-26/T-27/T-46]
+    t29_reduce_transit_fares
     t46_provide_transit_shelters              [excl. T-28 when BRT]
 
 School Programs (Project/Site, T-40 & T-56): cap 72% school VMT
@@ -84,14 +112,34 @@ from tdm_ghg.mitigations import (
     t3_provide_transit_oriented_development,
     t4_integrate_affordable_housing,
     t55_infill_development,
+    t5_implement_voluntary_commute_trip_reduction,
+    t6_implement_mandatory_commute_trip_reduction,
+    t7_implement_commute_trip_reduction_marketing,
+    t8_provide_ridesharing_program,
+    t9_implement_subsidized_transit_program,
     t10_provide_end_of_trip_bicycle_facilities,
+    t11_provide_employer_sponsored_vanpool,
+    t12_price_workplace_parking,
+    t13_implement_employee_parking_cash_out,
+    t14_provide_ev_charging_infrastructure,
+    t15_limit_residential_parking_supply,
+    t16_unbundle_residential_parking_costs,
+    t17_improve_street_connectivity,
+    t18_provide_pedestrian_network_improvement,
     t20_expand_bikeway_network,
+    t21a_implement_conventional_carshare,
+    t21b_implement_electric_carshare,
     t22a_implement_pedal_bikeshare,
     t22b_implement_electric_bikeshare,
+    t22c_implement_scootershare,
     t22d_transition_conventional_to_electric_bikeshare,
+    t23_provide_community_based_travel_planning,
+    t24_implement_market_price_public_parking,
+    t25_extend_transit_network_coverage_or_hours,
     t26_increase_transit_service_frequency,
     t27_implement_transit_supportive_roadway_treatments,
     t28_provide_bus_rapid_transit,
+    t29_reduce_transit_fares,
     t46_provide_transit_shelters,
     t40_establish_school_bus_program,
     t56_active_modes_transportation_youth,
@@ -129,14 +177,34 @@ __all__ = [
     "t3_provide_transit_oriented_development",
     "t4_integrate_affordable_housing",
     "t55_infill_development",
+    "t5_implement_voluntary_commute_trip_reduction",
+    "t6_implement_mandatory_commute_trip_reduction",
+    "t7_implement_commute_trip_reduction_marketing",
+    "t8_provide_ridesharing_program",
+    "t9_implement_subsidized_transit_program",
     "t10_provide_end_of_trip_bicycle_facilities",
+    "t11_provide_employer_sponsored_vanpool",
+    "t12_price_workplace_parking",
+    "t13_implement_employee_parking_cash_out",
+    "t14_provide_ev_charging_infrastructure",
+    "t15_limit_residential_parking_supply",
+    "t16_unbundle_residential_parking_costs",
+    "t17_improve_street_connectivity",
+    "t18_provide_pedestrian_network_improvement",
     "t20_expand_bikeway_network",
+    "t21a_implement_conventional_carshare",
+    "t21b_implement_electric_carshare",
     "t22a_implement_pedal_bikeshare",
     "t22b_implement_electric_bikeshare",
+    "t22c_implement_scootershare",
     "t22d_transition_conventional_to_electric_bikeshare",
+    "t23_provide_community_based_travel_planning",
+    "t24_implement_market_price_public_parking",
+    "t25_extend_transit_network_coverage_or_hours",
     "t26_increase_transit_service_frequency",
     "t27_implement_transit_supportive_roadway_treatments",
     "t28_provide_bus_rapid_transit",
+    "t29_reduce_transit_fares",
     "t46_provide_transit_shelters",
     "t40_establish_school_bus_program",
     "t56_active_modes_transportation_youth",

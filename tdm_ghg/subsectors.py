@@ -118,7 +118,7 @@ def run_land_use(context: TDMContext) -> float:
 
     Applicable measures (by context):
       - Project/Site: T-1, T-2, T-3, T-4, T-55 (cap 65%)
-      - Plan/Community: (no measures currently implemented; cap 30%)
+      - Plan/Community: T-17 (cap 30%)
 
     Notes
     -----
@@ -132,7 +132,7 @@ def run_neighborhood_design(context: TDMContext) -> float:
     """Combined reduction for the Neighborhood Design subsector.
 
     Applicable measures (Plan/Community only, cap 10%):
-      T-20, T-22-A, T-22-B, T-22-D
+      T-18, T-20, T-21-A, T-21-B, T-22-A, T-22-B, T-22-C, T-22-D
     """
     return run_subsector(context, "neighborhood_design")
 
@@ -141,8 +141,14 @@ def run_trip_reduction(context: TDMContext) -> float:
     """Combined reduction for the Trip Reduction Programs subsector.
 
     Applicable measures:
-      - Project/Site: T-10 (cap 45% commute VMT)
-      - Plan/Community: (cap 2.3% commute VMT)
+      - Project/Site: T-5–T-13 (cap 45% commute VMT)
+      - Plan/Community: T-23 (cap 2.3% commute VMT)
+
+    Notes
+    -----
+    T-5 and T-6 are mutually exclusive (select one). T-5 or T-6 also
+    bundle T-7 through T-11, so they cannot be combined with those measures.
+    T-12 and T-13 are mutually exclusive (select one parking pricing approach).
     """
     return run_subsector(context, "trip_reduction")
 
@@ -174,6 +180,7 @@ def run_transit(
     return run_subsector(context, "transit", excluded_measure_ids=excluded)
 
 
+
 def run_school_programs(context: TDMContext) -> float:
     """Combined reduction for the School Programs subsector.
 
@@ -186,7 +193,9 @@ def run_school_programs(context: TDMContext) -> float:
 def run_parking_management(context: TDMContext) -> float:
     """Combined reduction for the Parking or Road Pricing/Management subsector.
 
-    No measures are currently implemented. Returns 0.0.
+    Applicable measures:
+      - Project/Site: T-14, T-15, T-16 (cap 35%)
+      - Plan/Community: T-24 (cap 30%)
     """
     return run_subsector(context, "parking_management")
 
