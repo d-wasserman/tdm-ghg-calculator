@@ -106,47 +106,47 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t6_implement_mandatory_commute_trip_reduction(self):
-    #     """Test the mandatory CTR program strategy."""
-    #     # Mock the input data
-    #     pct_employees_eligible = 1.0
-    #     pct_reduction_vehicle_mode_share = -0.26
-    #     adjustment_vehicle_mode_to_vmt = 1.0
-    #     # Expected result based on the mock data
-    #     expected_result = -0.26
+    def test_t6_implement_mandatory_commute_trip_reduction(self):
+        """Test the mandatory CTR program strategy."""
+        # Mock the input data
+        pct_employees_eligible = .85
+        pct_reduction_vehicle_mode_share = -0.26
+        adjustment_vehicle_mode_to_vmt = 1.0
+        # Expected result based on the mock data
+        expected_result = -0.221
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t6_implement_mandatory_commute_trip_reduction(
-    #         pct_employees_eligible,
-    #         pct_reduction_vehicle_mode_share,
-    #         adjustment_vehicle_mode_to_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t6_implement_mandatory_commute_trip_reduction(
+            pct_employees_eligible,
+            pct_reduction_vehicle_mode_share,
+            adjustment_vehicle_mode_to_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
-    # def test_t7_implement_commute_trip_reduction_marketing(self):
-    #     """Test the CTR marketing strategy."""
-    #     # Mock the input data
-    #     pct_employees_eligible = 1.0
-    #     pct_reduction_vehicle_trips = -0.04
-    #     adjustment_vehicle_trips_to_vmt = 1.0
-    #     # Expected result based on the mock data
-    #     expected_result = -0.04
+    def test_t7_implement_commute_trip_reduction_marketing(self):
+        """Test the CTR marketing strategy."""
+        # Mock the input data
+        pct_employees_eligible = .7
+        pct_reduction_vehicle_trips = -0.04
+        adjustment_vehicle_trips_to_vmt = 1.0
+        # Expected result based on the mock data
+        expected_result = -0.028
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t7_implement_commute_trip_reduction_marketing(
-    #         pct_employees_eligible,
-    #         pct_reduction_vehicle_trips,
-    #         adjustment_vehicle_trips_to_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t7_implement_commute_trip_reduction_marketing(
+            pct_employees_eligible,
+            pct_reduction_vehicle_trips,
+            adjustment_vehicle_trips_to_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t8_provide_ridesharing_program(self):
     #     """Test the ridesharing program strategy."""
