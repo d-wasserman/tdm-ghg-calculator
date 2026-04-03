@@ -581,26 +581,26 @@ class TestMitigations:
     #         f"Expected {expected_result}, but got {result}"
     #     )
 
-    # def test_t55_infill_development(self):
-    #     """Test the infill development strategy."""
-    #     # Mock the input data
-    #     proposed_project_distance_to_downtown = 5.0
-    #     conventional_development_distance_to_downtown = 13.4
-    #     elasticity_vmt_distance_to_downtown = -0.22
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t55_infill_development(self):
+        """Test the infill development strategy."""
+        # Mock the input data
+        proposed_project_distance_to_downtown = 4
+        conventional_development_distance_to_downtown = 10
+        elasticity_vmt_distance_to_downtown = -0.22
+        # Expected result based on the mock data
+        expected_result = -0.132
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t55_infill_development(
-    #         proposed_project_distance_to_downtown,
-    #         conventional_development_distance_to_downtown,
-    #         elasticity_vmt_distance_to_downtown,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t55_infill_development(
+            proposed_project_distance_to_downtown,
+            conventional_development_distance_to_downtown,
+            elasticity_vmt_distance_to_downtown,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t10_provide_end_of_trip_bicycle_facilities(self):
     #     """Test the end-of-trip bicycle facilities strategy."""
