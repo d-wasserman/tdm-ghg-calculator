@@ -148,24 +148,24 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t8_provide_ridesharing_program(self):
-    #     """Test the ridesharing program strategy."""
-    #     # Mock the input data
-    #     pct_employees_eligible = 0.50
-    #     pct_reduction_commute_vmt = -0.08  # urban place type, SANDAG 2019
-    #     # Expected result based on the mock data
-    #     expected_result = -0.04
+    def test_t8_provide_ridesharing_program(self):
+        """Test the ridesharing program strategy."""
+        # Mock the input data
+        pct_employees_eligible = 0.60
+        pct_reduction_commute_vmt = -0.08  # urban place type, SANDAG 2019
+        # Expected result based on the mock data
+        expected_result = -0.048
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t8_provide_ridesharing_program(
-    #         pct_employees_eligible,
-    #         pct_reduction_commute_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t8_provide_ridesharing_program(
+            pct_employees_eligible,
+            pct_reduction_commute_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t9_implement_subsidized_transit_program(self):
     #     """Test the subsidized transit program strategy."""
