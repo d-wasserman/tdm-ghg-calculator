@@ -26,7 +26,11 @@ Build a `TDMContext` describing your project, then let the subsector orchestrato
 
 ```python
 from tdm_ghg import TDMContext, Scale, LocationType, LandUseType
-from tdm_ghg import run_land_use, run_transit, run_multi_subsector
+from tdm_ghg import (
+    run_land_use, run_trip_reduction, run_parking_management,
+    run_neighborhood_design, run_transit, run_school_programs,
+    run_multi_subsector,
+)
 
 ctx = TDMContext(
     scale=Scale.PROJECT_SITE,
@@ -94,24 +98,64 @@ All mitigation functions return a **decimal fraction** where **negative values r
 
 | ID | Function | Notes |
 |---|---|---|
-| T-10 | `t10_provide_end_of_trip_bicycle_facilities` | |
+| T-5 | `t5_implement_voluntary_commute_trip_reduction` | Excl. T-6, T-7 through T-11 |
+| T-6 | `t6_implement_mandatory_commute_trip_reduction` | Excl. T-5, T-7 through T-11 |
+| T-7 | `t7_implement_commute_trip_reduction_marketing` | Excl. T-5, T-6 |
+| T-8 | `t8_provide_ridesharing_program` | Excl. T-5, T-6 |
+| T-9 | `t9_implement_subsidized_transit_program` | Excl. T-5, T-6 |
+| T-10 | `t10_provide_end_of_trip_bicycle_facilities` | Excl. T-5, T-6 |
+| T-11 | `t11_provide_employer_sponsored_vanpool` | Excl. T-5, T-6 |
+| T-12 | `t12_price_workplace_parking` | Excl. T-13 |
+| T-13 | `t13_implement_employee_parking_cash_out` | Excl. T-12 |
+
+### Parking Management (Project/Site) -- cap 35%
+
+| ID | Function | Notes |
+|---|---|---|
+| T-14 | `t14_provide_ev_charging_infrastructure` | |
+| T-15 | `t15_limit_residential_parking_supply` | Residential only |
+| T-16 | `t16_unbundle_residential_parking_costs` | Residential only |
+
+### Land Use (Plan/Community) -- cap 30%
+
+| ID | Function | Notes |
+|---|---|---|
+| T-17 | `t17_improve_street_connectivity` | |
 
 ### Neighborhood Design (Plan/Community) -- cap 10%
 
 | ID | Function | Notes |
 |---|---|---|
+| T-18 | `t18_provide_pedestrian_network_improvement` | |
 | T-20 | `t20_expand_bikeway_network` | |
+| T-21-A | `t21a_implement_conventional_carshare` | |
+| T-21-B | `t21b_implement_electric_carshare` | |
 | T-22-A | `t22a_implement_pedal_bikeshare` | |
 | T-22-B | `t22b_implement_electric_bikeshare` | |
+| T-22-C | `t22c_implement_scootershare` | |
 | T-22-D | `t22d_transition_conventional_to_electric_bikeshare` | |
+
+### Trip Reduction Programs (Plan/Community) -- cap 2.3% commute VMT
+
+| ID | Function | Notes |
+|---|---|---|
+| T-23 | `t23_provide_community_based_travel_planning` | Residential only |
+
+### Parking Management (Plan/Community) -- cap 30%
+
+| ID | Function | Notes |
+|---|---|---|
+| T-24 | `t24_implement_market_price_public_parking` | |
 
 ### Transit (Plan/Community) -- cap 15%
 
 | ID | Function | Notes |
 |---|---|---|
+| T-25 | `t25_extend_transit_network_coverage_or_hours` | |
 | T-26 | `t26_increase_transit_service_frequency` | Excl. T-28 when BRT |
 | T-27 | `t27_implement_transit_supportive_roadway_treatments` | Excl. T-28 |
 | T-28 | `t28_provide_bus_rapid_transit` | Excl. T-26, T-27, T-46 |
+| T-29 | `t29_reduce_transit_fares` | |
 | T-46 | `t46_provide_transit_shelters` | Excl. T-28 when BRT |
 
 ### School Programs (Project/Site) -- cap 72% school VMT
@@ -143,7 +187,9 @@ combined = multiplicative_dampening([-0.10, -0.08, -0.05], max_reduction_percent
 - **Scale**: `PROJECT_SITE` or `PLAN_COMMUNITY`. Measures from different scales must never be combined.
 - **LocationType**: `URBAN`, `SUBURBAN`, or `RURAL` -- based on census-tract development level (Salon 2014 neighborhood typology).
 - **LandUseType**: `RESIDENTIAL`, `COMMERCIAL`, `MIXED`, or `SCHOOL` -- filters measures to applicable land uses.
-- **Mutual exclusivity**: Some measures cannot be combined (e.g., T-28 BRT excludes T-26/T-27/T-46). The `run_transit(use_brt=True)` orchestrator handles this automatically.
+- **Mutual exclusivity**: Some measures cannot be combined within a subsector:
+  - **Trip Reduction**: T-5 (voluntary) and T-6 (mandatory) each exclude T-7 through T-11; T-12 and T-13 are mutually exclusive.
+  - **Transit**: T-28 (BRT) excludes T-26, T-27, and T-46. The `run_transit(use_brt=True)` orchestrator handles this automatically.
 
 ## Testing
 
