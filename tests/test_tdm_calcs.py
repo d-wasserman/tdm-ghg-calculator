@@ -199,32 +199,33 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t11_provide_employer_sponsored_vanpool(self):
-    #     """Test the employer-sponsored vanpool strategy."""
-    #     # Mock the input data (handbook Amax example: B=15%, San Diego CBSA)
-    #     pct_employees_vanpooling = 0.15
-    #     avg_vehicle_commute_trip_length = 14.52
-    #     avg_vanpool_trip_length = 42.0
-    #     avg_vanpool_occupancy = 6.25
-    #     avg_employee_vehicle_emission_factor = 307.5
-    #     vanpool_emission_factor = 763.4
-    #     # Expected result based on the mock data
-    #     expected_result = -0.204
+    def test_t11_provide_employer_sponsored_vanpool(self):
+        """Test the employer-sponsored vanpool strategy."""
+        # Mock the input data (handbook Amax example: B=15%, San Diego CBSA)
+        pct_employees_vanpooling = 0.027
+        avg_vehicle_commute_trip_length = 20
+        avg_vanpool_trip_length = 42.0
+        avg_vanpool_occupancy = 6.25
+        avg_employee_vehicle_emission_factor = 307.5
+        vanpool_emission_factor = 763.4
+        # Expected result based on the mock data
+        expected_result = -0.033192035
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t11_provide_employer_sponsored_vanpool(
-    #         pct_employees_vanpooling,
-    #         avg_vehicle_commute_trip_length,
-    #         avg_vanpool_trip_length,
-    #         avg_vanpool_occupancy,
-    #         avg_employee_vehicle_emission_factor,
-    #         vanpool_emission_factor,
-    #     )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t11_provide_employer_sponsored_vanpool(
+            pct_employees_vanpooling,
+            avg_vehicle_commute_trip_length,
+            avg_vanpool_trip_length,
+            avg_vanpool_occupancy,
+            avg_employee_vehicle_emission_factor,
+            vanpool_emission_factor,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t12_price_workplace_parking(self):
     #     """Test the price workplace parking strategy."""
