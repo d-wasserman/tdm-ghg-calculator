@@ -173,7 +173,7 @@ class TestMitigations:
         transit_fare = 100.0
         subsidy_amount =  80
         pct_eligible = .95
-        pct_project_vmt_from_employees = 1.0
+        pct_project_vmt_from_employees = .8
         transit_mode_share = 0.2  # SF-Oakland-Hayward CBSA work trips
         elasticity_transit_boardings_fare = -0.43
         pct_transit_replacing_vehicle = 0.50
