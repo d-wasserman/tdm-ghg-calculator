@@ -227,30 +227,29 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t12_price_workplace_parking(self):
-    #     """Test the price workplace parking strategy."""
-    #     # Mock the input data (50% price increase, 100% employees paying)
-    #     proposed_parking_price = 15.0
-    #     baseline_parking_price = 10.0
-    #     share_employees_paying_for_parking = 1.0
-    #     elasticity_parking_demand = -0.4
-    #     ratio_vehicle_trip_reduction_to_vmt = 1.0
-    #     # Expected result based on the mock data: ((15-10)/10)*-0.4*1.0*1.0 = -0.20
-    #     expected_result = -0.20
+    def test_t12_price_workplace_parking(self):
+        """Test the price workplace parking strategy."""
+        # Mock the input data (50% price increase, 100% employees paying)
+        proposed_parking_price = 10
+        baseline_parking_price = 8
+        share_employees_paying_for_parking = .8
+        elasticity_parking_demand = -0.4
+        ratio_vehicle_trip_reduction_to_vmt = 1.0
+        expected_result = -0.08
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t12_price_workplace_parking(
-    #         proposed_parking_price,
-    #         baseline_parking_price,
-    #         share_employees_paying_for_parking,
-    #         elasticity_parking_demand,
-    #         ratio_vehicle_trip_reduction_to_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t12_price_workplace_parking(
+            proposed_parking_price,
+            baseline_parking_price,
+            share_employees_paying_for_parking,
+            elasticity_parking_demand,
+            ratio_vehicle_trip_reduction_to_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t13_implement_employee_parking_cash_out(self):
     #     """Test the employee parking cash-out strategy."""
