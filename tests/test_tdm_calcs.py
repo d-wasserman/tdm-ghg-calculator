@@ -328,28 +328,28 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t16_unbundle_residential_parking_costs(self):
-    #     """Test the unbundle residential parking costs strategy."""
-    #     # Mock the input data (Bmax=$3,600/yr)
-    #     annual_parking_cost_per_space = 3600.0
-    #     avg_annual_vehicle_cost = 9282.0
-    #     elasticity_vehicle_ownership = -0.4
-    #     adjustment_ownership_to_vmt = 1.01
-    #     # Expected result: (3600/9282)*-0.4*1.01 = -0.1567
-    #     expected_result = -0.157
+    def test_t16_unbundle_residential_parking_costs(self):
+        """Test the unbundle residential parking costs strategy."""
+        # Mock the input data (Bmax=$3,600/yr)
+        annual_parking_cost_per_space = 1000
+        avg_annual_vehicle_cost = 9282.0
+        elasticity_vehicle_ownership = -0.4
+        adjustment_ownership_to_vmt = 1.01
+        # Expected result: (3600/9282)*-0.4*1.01 = -0.1567
+        expected_result = -0.043525102
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t16_unbundle_residential_parking_costs(
-    #         annual_parking_cost_per_space,
-    #         avg_annual_vehicle_cost,
-    #         elasticity_vehicle_ownership,
-    #         adjustment_ownership_to_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t16_unbundle_residential_parking_costs(
+            annual_parking_cost_per_space,
+            avg_annual_vehicle_cost,
+            elasticity_vehicle_ownership,
+            adjustment_ownership_to_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t17_improve_street_connectivity(self):
     #     """Test the improve street connectivity strategy."""
