@@ -351,26 +351,26 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t17_improve_street_connectivity(self):
-    #     """Test the improve street connectivity strategy."""
-    #     # Mock the input data (high connectivity area: 100 intersections/sq mi)
-    #     proposed_intersection_density = 100.0
-    #     avg_intersection_density = 36.0
-    #     elasticity_vmt_intersection_density = -0.14
-    #     # Expected result: ((100-36)/36)*-0.14 = -0.249
-    #     expected_result = -0.249
+    def test_t17_improve_street_connectivity(self):
+        """Test the improve street connectivity strategy."""
+        # Mock the input data (high connectivity area: 100 intersections/sq mi)
+        proposed_intersection_density = 60
+        avg_intersection_density = 36.0
+        elasticity_vmt_intersection_density = -0.14
+        # Expected result: ((100-36)/36)*-0.14 = -0.249
+        expected_result = -0.093333333
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t17_improve_street_connectivity(
-    #         proposed_intersection_density,
-    #         avg_intersection_density,
-    #         elasticity_vmt_intersection_density,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t17_improve_street_connectivity(
+            proposed_intersection_density,
+            avg_intersection_density,
+            elasticity_vmt_intersection_density,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t18_provide_pedestrian_network_improvement(self):
     #     """Test the pedestrian network improvement strategy."""
