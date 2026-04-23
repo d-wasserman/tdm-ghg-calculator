@@ -388,10 +388,10 @@ class TestMitigations:
             elasticity_vmt_sidewalk_ratio,
         )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t21a_implement_conventional_carshare(self):
     #     """Test the conventional carshare program strategy."""
