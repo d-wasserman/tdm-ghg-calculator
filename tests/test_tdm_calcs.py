@@ -280,10 +280,10 @@ class TestMitigations:
         pct_phev_miles_electric_with_measure = 0.80
         phev_gasoline_emission_factor = 205.1
         ev_energy_efficiency_kwh_per_mile = 0.327
-        electricity_carbon_intensity = 0.0
+        electricity_carbon_intensity = 54
         fleet_emission_factor = 307.5
         # Expected result based on the mock data
-        expected_result = -0.054478302
+        expected_result = -0.054478302 
 
         # Call the function under test
         result = tdm_ghg.mitigations.t14_provide_ev_charging_infrastructure(
@@ -303,30 +303,30 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t15_limit_residential_parking_supply(self):
-    #     """Test the limit residential parking supply strategy."""
-    #     # Mock the input data (supply=0, demand=100, 100% resident VMT)
-    #     residential_parking_demand = 100.0
-    #     project_parking_supply = 0.0
-    #     pct_project_vmt_from_residents = 1.0
-    #     pct_household_vmt_commute = 0.37
-    #     pct_reduction_commute_mode_share = 0.37
-    #     # Expected result: -(100/100)*1.0*0.37*0.37 = -0.1369 (capped at -0.137)
-    #     expected_result = -0.137
+    def test_t15_limit_residential_parking_supply(self):
+        """Test the limit residential parking supply strategy."""
+        # Mock the input data (supply=0, demand=100, 100% resident VMT)
+        residential_parking_demand = 20
+        project_parking_supply = 5
+        pct_project_vmt_from_residents = .7
+        pct_household_vmt_commute = 0.37
+        pct_reduction_commute_mode_share = 0.37
+        # Expected result: -(100/100)*1.0*0.37*0.37 = -0.1369 (capped at -0.137)
+        expected_result = -0.0718725
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t15_limit_residential_parking_supply(
-    #         residential_parking_demand,
-    #         project_parking_supply,
-    #         pct_project_vmt_from_residents,
-    #         pct_household_vmt_commute,
-    #         pct_reduction_commute_mode_share,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t15_limit_residential_parking_supply(
+            residential_parking_demand,
+            project_parking_supply,
+            pct_project_vmt_from_residents,
+            pct_household_vmt_commute,
+            pct_reduction_commute_mode_share,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t16_unbundle_residential_parking_costs(self):
     #     """Test the unbundle residential parking costs strategy."""
