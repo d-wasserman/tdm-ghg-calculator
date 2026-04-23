@@ -372,21 +372,21 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t18_provide_pedestrian_network_improvement(self):
-    #     """Test the pedestrian network improvement strategy."""
-    #     # Mock the input data (double existing sidewalk coverage)
-    #     existing_sidewalk_length = 50.0
-    #     proposed_sidewalk_length = 100.0
-    #     elasticity_vmt_sidewalk_ratio = -0.05
-    #     # Expected result: (100/50 - 1)*-0.05 = -0.05
-    #     expected_result = -0.05
+    def test_t18_provide_pedestrian_network_improvement(self):
+        """Test the pedestrian network improvement strategy."""
+        # Mock the input data (double existing sidewalk coverage)
+        existing_sidewalk_length = 100
+        proposed_sidewalk_length = 150
+        elasticity_vmt_sidewalk_ratio = -0.05
+        # Expected result: (100/50 - 1)*-0.05 = -0.05
+        expected_result = -0.025
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t18_provide_pedestrian_network_improvement(
-    #         existing_sidewalk_length,
-    #         proposed_sidewalk_length,
-    #         elasticity_vmt_sidewalk_ratio,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t18_provide_pedestrian_network_improvement(
+            existing_sidewalk_length,
+            proposed_sidewalk_length,
+            elasticity_vmt_sidewalk_ratio,
+        )
 
     #     # Assert that the result matches the expected output
     #     assert isclose(result, expected_result, rel_tol=1e-2), (
