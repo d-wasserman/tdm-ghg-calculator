@@ -251,57 +251,57 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t13_implement_employee_parking_cash_out(self):
-    #     """Test the employee parking cash-out strategy."""
-    #     # Mock the input data (100% eligible, default -12% VMT reduction)
-    #     pct_employees_eligible = 1.0
-    #     pct_reduction_commute_vmt = -0.12
-    #     # Expected result based on the mock data
-    #     expected_result = -0.12
+    def test_t13_implement_employee_parking_cash_out(self):
+        """Test the employee parking cash-out strategy."""
+        # Mock the input data (100% eligible, default -12% VMT reduction)
+        pct_employees_eligible = .75
+        pct_reduction_commute_vmt = -0.12
+        # Expected result based on the mock data
+        expected_result = -0.09
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t13_implement_employee_parking_cash_out(
-    #         pct_employees_eligible,
-    #         pct_reduction_commute_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t13_implement_employee_parking_cash_out(
+            pct_employees_eligible,
+            pct_reduction_commute_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
-    # def test_t14_provide_ev_charging_infrastructure(self):
-    #     """Test the EV charging infrastructure strategy."""
-    #     # Mock the input data (handbook Amax example: 20 chargers, 200 vehicles, Dmax=7, I=0)
-    #     num_chargers = 20
-    #     total_vehicles_per_day = 200
-    #     avg_phevs_served_per_charger_per_day = 7
-    #     pct_phev_miles_electric_without_measure = 0.46
-    #     pct_phev_miles_electric_with_measure = 0.80
-    #     phev_gasoline_emission_factor = 205.1
-    #     ev_energy_efficiency_kwh_per_mile = 0.327
-    #     electricity_carbon_intensity = 0.0
-    #     fleet_emission_factor = 307.5
-    #     # Expected result based on the mock data
-    #     expected_result = -0.119
+    def test_t14_provide_ev_charging_infrastructure(self):
+        """Test the EV charging infrastructure strategy."""
+        # Mock the input data (handbook Amax example: 20 chargers, 200 vehicles, Dmax=7, I=0)
+        num_chargers = 10
+        total_vehicles_per_day = 80
+        avg_phevs_served_per_charger_per_day = 2
+        pct_phev_miles_electric_without_measure = 0.46
+        pct_phev_miles_electric_with_measure = 0.80
+        phev_gasoline_emission_factor = 205.1
+        ev_energy_efficiency_kwh_per_mile = 0.327
+        electricity_carbon_intensity = 0.0
+        fleet_emission_factor = 307.5
+        # Expected result based on the mock data
+        expected_result = -0.054478302
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t14_provide_ev_charging_infrastructure(
-    #         num_chargers,
-    #         total_vehicles_per_day,
-    #         avg_phevs_served_per_charger_per_day,
-    #         pct_phev_miles_electric_without_measure,
-    #         pct_phev_miles_electric_with_measure,
-    #         phev_gasoline_emission_factor,
-    #         ev_energy_efficiency_kwh_per_mile,
-    #         electricity_carbon_intensity,
-    #         fleet_emission_factor,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t14_provide_ev_charging_infrastructure(
+            num_chargers,
+            total_vehicles_per_day,
+            avg_phevs_served_per_charger_per_day,
+            pct_phev_miles_electric_without_measure,
+            pct_phev_miles_electric_with_measure,
+            phev_gasoline_emission_factor,
+            ev_energy_efficiency_kwh_per_mile,
+            electricity_carbon_intensity,
+            fleet_emission_factor,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t15_limit_residential_parking_supply(self):
     #     """Test the limit residential parking supply strategy."""
