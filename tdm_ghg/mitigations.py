@@ -791,8 +791,10 @@ def t14_provide_ev_charging_infrastructure(
         reductions; positive values indicate net increase (dirty grid).
     """
     # Electricity emission equivalent [g CO2e/mile in electric mode]
+    lb_to_g = 454 # Constant conversion factor
+    kw_to_mw = .001 # Constant conversion factor
     electricity_emission_rate = (ev_energy_efficiency_kwh_per_mile
-                                 * electricity_carbon_intensity * 454 * 0.001)
+                                 * electricity_carbon_intensity * lb_to_g * kw_to_mw)
     net_emission_factor_diff = phev_gasoline_emission_factor - electricity_emission_rate
     numerator = (num_chargers * avg_phevs_served_per_charger_per_day
                  * (pct_phev_miles_electric_with_measure
