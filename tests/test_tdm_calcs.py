@@ -393,28 +393,28 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t21a_implement_conventional_carshare(self):
-    #     """Test the conventional carshare program strategy."""
-    #     # Mock the input data
-    #     num_carshare_vehicles = 10
-    #     total_vmt_plan_community = 1000000.0
-    #     conventional_vmt_avoided_per_vehicle = 68.2
-    #     conventional_vmt_added_per_vehicle = 24.4
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t21a_implement_conventional_carshare(self):
+        """Test the conventional carshare program strategy."""
+        # Mock the input data
+        num_carshare_vehicles = 20
+        total_vmt_plan_community = 8000
+        conventional_vmt_avoided_per_vehicle = 68.2
+        conventional_vmt_added_per_vehicle = 24.4
+        # Expected result based on the mock data
+        expected_result = -.1095
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t21a_implement_conventional_carshare(
-    #         num_carshare_vehicles,
-    #         total_vmt_plan_community,
-    #         conventional_vmt_avoided_per_vehicle,
-    #         conventional_vmt_added_per_vehicle,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t21a_implement_conventional_carshare(
+            num_carshare_vehicles,
+            total_vmt_plan_community,
+            conventional_vmt_avoided_per_vehicle,
+            conventional_vmt_added_per_vehicle,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t21b_implement_electric_carshare(self):
     #     """Test the electric carshare program strategy."""
