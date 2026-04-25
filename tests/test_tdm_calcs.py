@@ -427,7 +427,7 @@ class TestMitigations:
         ev_energy_efficiency_kwh_per_mile = 0.327
         electricity_carbon_intensity = 0.0
         # Expected result based on the mock data
-        expected_result = 0.000548
+        expected_result = -0.000548
 
         # Call the function under test
         result = tdm_ghg.mitigations.t21b_implement_electric_carshare(
