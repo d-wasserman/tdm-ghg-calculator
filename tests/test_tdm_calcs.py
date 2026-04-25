@@ -397,11 +397,11 @@ class TestMitigations:
         """Test the conventional carshare program strategy."""
         # Mock the input data
         num_carshare_vehicles = 20
-        total_vmt_plan_community = 8000
+        total_vmt_plan_community = 8000000
         conventional_vmt_avoided_per_vehicle = 68.2
         conventional_vmt_added_per_vehicle = 24.4
         # Expected result based on the mock data
-        expected_result = -.1095
+        expected_result = -0.0001095
 
         # Call the function under test
         result = tdm_ghg.mitigations.t21a_implement_conventional_carshare(
@@ -420,14 +420,14 @@ class TestMitigations:
         """Test the electric carshare program strategy."""
         # Mock the input data (zero-carbon electricity)
         num_ev_carshare_vehicles = 100
-        total_vmt_plan_community = 1000000.0
+        total_vmt_plan_community = 10000000.0
         conventional_vmt_avoided_per_ev = 54.8
         electric_vmt_added_per_ev = 13.7
         fleet_emission_factor = 307.5
         ev_energy_efficiency_kwh_per_mile = 0.327
         electricity_carbon_intensity = 0.0
         # Expected result based on the mock data
-        expected_result = 0.00548
+        expected_result = 0.000548
 
         # Call the function under test
         result = tdm_ghg.mitigations.t21b_implement_electric_carshare(
