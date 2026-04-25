@@ -416,34 +416,34 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t21b_implement_electric_carshare(self):
-    #     """Test the electric carshare program strategy."""
-    #     # Mock the input data (zero-carbon electricity)
-    #     num_ev_carshare_vehicles = 10
-    #     total_vmt_plan_community = 1000000.0
-    #     conventional_vmt_avoided_per_ev = 54.8
-    #     electric_vmt_added_per_ev = 13.7
-    #     fleet_emission_factor = 307.5
-    #     ev_energy_efficiency_kwh_per_mile = 0.327
-    #     electricity_carbon_intensity = 0.0
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t21b_implement_electric_carshare(self):
+        """Test the electric carshare program strategy."""
+        # Mock the input data (zero-carbon electricity)
+        num_ev_carshare_vehicles = 100
+        total_vmt_plan_community = 1000000.0
+        conventional_vmt_avoided_per_ev = 54.8
+        electric_vmt_added_per_ev = 13.7
+        fleet_emission_factor = 307.5
+        ev_energy_efficiency_kwh_per_mile = 0.327
+        electricity_carbon_intensity = 0.0
+        # Expected result based on the mock data
+        expected_result = 0.00548
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t21b_implement_electric_carshare(
-    #         num_ev_carshare_vehicles,
-    #         total_vmt_plan_community,
-    #         conventional_vmt_avoided_per_ev,
-    #         electric_vmt_added_per_ev,
-    #         fleet_emission_factor,
-    #         ev_energy_efficiency_kwh_per_mile,
-    #         electricity_carbon_intensity,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t21b_implement_electric_carshare(
+            num_ev_carshare_vehicles,
+            total_vmt_plan_community,
+            conventional_vmt_avoided_per_ev,
+            electric_vmt_added_per_ev,
+            fleet_emission_factor,
+            ev_energy_efficiency_kwh_per_mile,
+            electricity_carbon_intensity,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t22c_implement_scootershare(self):
     #     """Test the scootershare program strategy."""
