@@ -445,34 +445,35 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t22c_implement_scootershare(self):
-    #     """Test the scootershare program strategy."""
-    #     # Mock the input data
-    #     pct_residences_with_access_with_measure = 0.50
-    #     pct_residences_with_access_without_measure = 0.0
-    #     daily_scootershare_trips_per_person = 0.021
-    #     vehicle_to_scootershare_substitution_rate = 0.385
-    #     scootershare_avg_oneway_trip_length = 2.14
-    #     daily_vehicle_trips_per_person = 2.7
-    #     regional_avg_oneway_vehicle_trip_length = 9.72
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t22c_implement_scootershare(self):
+        """Test the scootershare program strategy."""
+        # Mock the input data
+        pct_residences_with_access_with_measure = 0.50
+        pct_residences_with_access_without_measure = 0.0
+        daily_scootershare_trips_per_person = 0.021
+        vehicle_to_scootershare_substitution_rate = 0.385
+        scootershare_avg_oneway_trip_length = 2.14
+        daily_vehicle_trips_per_person = 2.7
+        regional_avg_oneway_vehicle_trip_length = 9.72
+        # Expected result based on the mock data
+        expected_result = 0.03114342
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t22c_implement_scootershare(
-    #         pct_residences_with_access_with_measure,
-    #         pct_residences_with_access_without_measure,
-    #         daily_scootershare_trips_per_person,
-    #         vehicle_to_scootershare_substitution_rate,
-    #         scootershare_avg_oneway_trip_length,
-    #         daily_vehicle_trips_per_person,
-    #         regional_avg_oneway_vehicle_trip_length,
-    #     )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t22c_implement_scootershare(
+            pct_residences_with_access_with_measure,
+            pct_residences_with_access_without_measure,
+            daily_scootershare_trips_per_person,
+            vehicle_to_scootershare_substitution_rate,
+            scootershare_avg_oneway_trip_length,
+            daily_vehicle_trips_per_person,
+            regional_avg_oneway_vehicle_trip_length,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t23_provide_community_based_travel_planning(self):
     #     """Test the community-based travel planning strategy."""
