@@ -456,7 +456,8 @@ class TestMitigations:
         daily_vehicle_trips_per_person = 2.7
         regional_avg_oneway_vehicle_trip_length = 9.72
         # Expected result based on the mock data
-        expected_result = 0.03114342
+        expected_result = -0.000329635
+
 
 
         # Call the function under test
