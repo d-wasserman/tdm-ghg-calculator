@@ -476,30 +476,29 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t23_provide_community_based_travel_planning(self):
-    #     """Test the community-based travel planning strategy."""
-    #     # Mock the input data (all residences targeted — Amax scenario)
-    #     total_residences = 1000
-    #     targeted_residences = 1000
-    #     pct_targeted_residences_participating = 0.19
-    #     pct_vehicle_trip_reduction = -0.12
-    #     adjustment_trips_to_vmt = 1.0
-    #     # Expected result: (1000/1000)*0.19*-0.12*1.0 = -0.0228
-    #     expected_result = -0.023
+    def test_t23_provide_community_based_travel_planning(self):
+        """Test the community-based travel planning strategy."""
+        # Mock the input data (all residences targeted — Amax scenario)
+        total_residences = 40000
+        targeted_residences = 10000
+        pct_targeted_residences_participating = 0.19
+        pct_vehicle_trip_reduction = -0.12
+        adjustment_trips_to_vmt = 1.0
+        expected_result = -0.0057
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t23_provide_community_based_travel_planning(
-    #         total_residences,
-    #         targeted_residences,
-    #         pct_targeted_residences_participating,
-    #         pct_vehicle_trip_reduction,
-    #         adjustment_trips_to_vmt,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t23_provide_community_based_travel_planning(
+            total_residences,
+            targeted_residences,
+            pct_targeted_residences_participating,
+            pct_vehicle_trip_reduction,
+            adjustment_trips_to_vmt,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t24_implement_market_price_public_parking(self):
     #     """Test the market price public parking strategy."""
