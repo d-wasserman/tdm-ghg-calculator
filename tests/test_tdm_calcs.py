@@ -500,34 +500,33 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t24_implement_market_price_public_parking(self):
-    #     """Test the market price public parking strategy."""
-    #     # Mock the input data (priced area = 50% of community VMT, 2x price, 50% trips park on-street)
-    #     vmt_in_priced_area = 500000.0
-    #     total_vmt_plan_community = 1000000.0
-    #     proposed_parking_price = 4.0
-    #     initial_parking_price = 2.0
-    #     pct_trips_parking_on_street = 0.5
-    #     elasticity_parking_demand = -0.4
-    #     ratio_vmt_to_vehicle_trips = 1.0
-    #     # Expected result: (0.5)*((4-2)/2)*0.5*-0.4*1.0 = -0.10
-    #     expected_result = -0.10
+    def test_t24_implement_market_price_public_parking(self):
+        """Test the market price on-street public parking strategy."""
+        # Mock the input data (priced area = 50% of community VMT, 2x price, 50% trips park on-street)
+        vmt_in_priced_area = 1000000.0
+        total_vmt_plan_community = 10000000.0
+        proposed_parking_price = 4.0
+        initial_parking_price = 2.0
+        pct_trips_parking_on_street = 0.25
+        elasticity_parking_demand = -0.4 # Assumes loss of vehicle trips
+        ratio_vmt_to_vehicle_trips = 1.0
+        expected_result = -0.01
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t24_implement_market_price_public_parking(
-    #         vmt_in_priced_area,
-    #         total_vmt_plan_community,
-    #         proposed_parking_price,
-    #         initial_parking_price,
-    #         pct_trips_parking_on_street,
-    #         elasticity_parking_demand,
-    #         ratio_vmt_to_vehicle_trips,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t24_implement_market_price_public_parking(
+            vmt_in_priced_area,
+            total_vmt_plan_community,
+            proposed_parking_price,
+            initial_parking_price,
+            pct_trips_parking_on_street,
+            elasticity_parking_demand,
+            ratio_vmt_to_vehicle_trips,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t25_extend_transit_network_coverage_or_hours(self):
     #     """Test the extend transit network coverage or hours strategy."""
