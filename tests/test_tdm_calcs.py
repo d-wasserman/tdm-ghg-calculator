@@ -827,38 +827,37 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t28_provide_bus_rapid_transit(self):
-    #     """Test the bus rapid transit strategy."""
-    #     # Mock the input data
-    #     pct_increase_in_transit_frequency = 1.5
-    #     level_of_implementation = 0.60
-    #     transit_mode_share = 0.04
-    #     vehicle_mode_share = 0.85
-    #     statewide_mode_shift_factor = 0.578
-    #     pct_ridership_increase_brt_bonus = 0.25
-    #     pct_change_in_transit_travel_time = -0.10
-    #     elasticity_ridership_frequency = 0.5
-    #     elasticity_ridership_travel_time = -0.4
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t28_provide_bus_rapid_transit(self):
+        """Test the bus rapid transit strategy."""
+        # Mock the input data
+        pct_increase_in_transit_frequency = 2
+        level_of_implementation = 0.8
+        transit_mode_share = 0.15
+        vehicle_mode_share = 0.8
+        statewide_mode_shift_factor = 0.578
+        pct_ridership_increase_brt_bonus = 0.25
+        pct_change_in_transit_travel_time = -0.20
+        elasticity_ridership_frequency = 0.5
+        elasticity_ridership_travel_time = -0.4
+        # Expected result based on the mock data
+        expected_result = -0.115311
+        # Call the function under test
+        result = tdm_ghg.mitigations.t28_provide_bus_rapid_transit(
+            pct_increase_in_transit_frequency,
+            level_of_implementation,
+            transit_mode_share,
+            vehicle_mode_share,
+            statewide_mode_shift_factor,
+            pct_ridership_increase_brt_bonus,
+            pct_change_in_transit_travel_time,
+            elasticity_ridership_frequency,
+            elasticity_ridership_travel_time,
+        )
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t28_provide_bus_rapid_transit(
-    #         pct_increase_in_transit_frequency,
-    #         level_of_implementation,
-    #         transit_mode_share,
-    #         vehicle_mode_share,
-    #         statewide_mode_shift_factor,
-    #         pct_ridership_increase_brt_bonus,
-    #         pct_change_in_transit_travel_time,
-    #         elasticity_ridership_frequency,
-    #         elasticity_ridership_travel_time,
-    #     )
-
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t46_provide_transit_shelters(self):
     #     """Test the transit shelters strategy."""
