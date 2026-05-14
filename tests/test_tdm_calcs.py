@@ -746,32 +746,32 @@ class TestMitigations:
     #         f"Expected {expected_result}, but got {result}"
     #     )
 
-    # def test_t26_increase_transit_service_frequency(self):
-    #     """Test the transit service frequency strategy."""
-    #     # Mock the input data
-    #     pct_increase_in_transit_frequency = 1.0
-    #     level_of_implementation = 0.75
-    #     transit_mode_share = 0.04
-    #     vehicle_mode_share = 0.85
-    #     elasticity_ridership_frequency = 0.5
-    #     statewide_mode_shift_factor = 0.578
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t26_increase_transit_service_frequency(self):
+        """Test the transit service frequency strategy."""
+        # Mock the input data
+        pct_increase_in_transit_frequency = 2.0
+        level_of_implementation = 0.8
+        transit_mode_share = 0.1
+        vehicle_mode_share = 0.85
+        elasticity_ridership_frequency = 0.5
+        statewide_mode_shift_factor = 0.578
+        # Expected result based on the mock data
+        expected_result = -0.0544
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t26_increase_transit_service_frequency(
-    #         pct_increase_in_transit_frequency,
-    #         level_of_implementation,
-    #         transit_mode_share,
-    #         vehicle_mode_share,
-    #         elasticity_ridership_frequency,
-    #         statewide_mode_shift_factor,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t26_increase_transit_service_frequency(
+            pct_increase_in_transit_frequency,
+            level_of_implementation,
+            transit_mode_share,
+            vehicle_mode_share,
+            elasticity_ridership_frequency,
+            statewide_mode_shift_factor,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t27_implement_transit_supportive_roadway_treatments(self):
     #     """Test the transit-supportive roadway treatments strategy."""
