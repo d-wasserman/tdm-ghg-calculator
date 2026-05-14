@@ -655,34 +655,33 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t22a_implement_pedal_bikeshare(self):
-    #     """Test the pedal bikeshare strategy."""
-    #     # Mock the input data
-    #     pct_residences_with_access_with_measure = 0.50
-    #     pct_residences_with_access_without_measure = 0.0
-    #     daily_bikeshare_trips_per_person = 0.021
-    #     vehicle_to_bikeshare_substitution_rate = 0.196
-    #     bikeshare_avg_oneway_trip_length = 1.4
-    #     daily_vehicle_trips_per_person = 2.7
-    #     regional_avg_oneway_vehicle_trip_length = 9.72
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t22a_implement_pedal_bikeshare(self):
+        """Test the pedal bikeshare strategy."""
+        # Mock the input data
+        pct_residences_with_access_with_measure = 0.0
+        pct_residences_with_access_without_measure = 0.8
+        daily_bikeshare_trips_per_person = 0.021
+        vehicle_to_bikeshare_substitution_rate = 0.196
+        bikeshare_avg_oneway_trip_length = 1.4
+        daily_vehicle_trips_per_person = 2.7
+        regional_avg_oneway_vehicle_trip_length = 9.72
+        # Expected result based on the mock data
+        expected_result = -0.000175656
+        # Call the function under test
+        result = tdm_ghg.mitigations.t22a_implement_pedal_bikeshare(
+            pct_residences_with_access_with_measure,
+            pct_residences_with_access_without_measure,
+            daily_bikeshare_trips_per_person,
+            vehicle_to_bikeshare_substitution_rate,
+            bikeshare_avg_oneway_trip_length,
+            daily_vehicle_trips_per_person,
+            regional_avg_oneway_vehicle_trip_length,
+        )
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t22a_implement_pedal_bikeshare(
-    #         pct_residences_with_access_with_measure,
-    #         pct_residences_with_access_without_measure,
-    #         daily_bikeshare_trips_per_person,
-    #         vehicle_to_bikeshare_substitution_rate,
-    #         bikeshare_avg_oneway_trip_length,
-    #         daily_vehicle_trips_per_person,
-    #         regional_avg_oneway_vehicle_trip_length,
-    #     )
-
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t22b_implement_electric_bikeshare(self):
     #     """Test the electric bikeshare strategy."""
