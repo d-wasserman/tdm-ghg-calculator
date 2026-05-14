@@ -601,30 +601,30 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t10_provide_end_of_trip_bicycle_facilities(self):
-    #     """Test the end-of-trip bicycle facilities strategy."""
-    #     # Mock the input data
-    #     bike_mode_adjustment_factor = 4.86
-    #     existing_bicycle_trip_length = 2.3
-    #     existing_vehicle_trip_length = 10.5
-    #     existing_bicycle_mode_share_work = 0.01
-    #     existing_vehicle_mode_share_work = 0.85
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t10_provide_end_of_trip_bicycle_facilities(self):
+        """Test the end-of-trip bicycle facilities strategy."""
+        # Mock the input data
+        bike_mode_adjustment_factor = 4.86
+        existing_bicycle_trip_length = 2.3
+        existing_vehicle_trip_length = 10.5
+        existing_bicycle_mode_share_work = 0.02
+        existing_vehicle_mode_share_work = 0.85
+        # Expected result based on the mock data
+        expected_result = -0.01989
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t10_provide_end_of_trip_bicycle_facilities(
-    #         bike_mode_adjustment_factor,
-    #         existing_bicycle_trip_length,
-    #         existing_vehicle_trip_length,
-    #         existing_bicycle_mode_share_work,
-    #         existing_vehicle_mode_share_work,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t10_provide_end_of_trip_bicycle_facilities(
+            bike_mode_adjustment_factor,
+            existing_bicycle_trip_length,
+            existing_vehicle_trip_length,
+            existing_bicycle_mode_share_work,
+            existing_vehicle_mode_share_work,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t20_expand_bikeway_network(self):
     #     """Test the expand bikeway network strategy."""
