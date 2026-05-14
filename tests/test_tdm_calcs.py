@@ -773,32 +773,31 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t27_implement_transit_supportive_roadway_treatments(self):
-    #     """Test the transit-supportive roadway treatments strategy."""
-    #     # Mock the input data
-    #     pct_transit_routes_receiving_treatments = 0.50
-    #     transit_mode_share = 0.04
-    #     vehicle_mode_share = 0.85
-    #     pct_change_in_transit_travel_time = -0.10
-    #     elasticity_ridership_travel_time = -0.4
-    #     statewide_mode_shift_factor = 0.578
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t27_implement_transit_supportive_roadway_treatments(self):
+        """Test the transit-supportive roadway treatments strategy."""
+        # Mock the input data
+        pct_transit_routes_receiving_treatments = 0.30
+        transit_mode_share = 0.15
+        vehicle_mode_share = 0.8
+        pct_change_in_transit_travel_time = -0.10
+        elasticity_ridership_travel_time = -0.4
+        statewide_mode_shift_factor = 0.578
+        # Expected result based on the mock data
+        expected_result = -0.0013
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t27_implement_transit_supportive_roadway_treatments(
-    #         pct_transit_routes_receiving_treatments,
-    #         transit_mode_share,
-    #         vehicle_mode_share,
-    #         pct_change_in_transit_travel_time,
-    #         elasticity_ridership_travel_time,
-    #         statewide_mode_shift_factor,
-    #     )
-
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t27_implement_transit_supportive_roadway_treatments(
+            pct_transit_routes_receiving_treatments,
+            transit_mode_share,
+            vehicle_mode_share,
+            pct_change_in_transit_travel_time,
+            elasticity_ridership_travel_time,
+            statewide_mode_shift_factor,
+        )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t28_provide_bus_rapid_transit(self):
     #     """Test the bus rapid transit strategy."""
