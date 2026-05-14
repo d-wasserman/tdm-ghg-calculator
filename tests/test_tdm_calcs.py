@@ -658,8 +658,8 @@ class TestMitigations:
     def test_t22a_implement_pedal_bikeshare(self):
         """Test the pedal bikeshare strategy."""
         # Mock the input data
-        pct_residences_with_access_with_measure = 0.0
-        pct_residences_with_access_without_measure = 0.8
+        pct_residences_with_access_with_measure = 0.8
+        pct_residences_with_access_without_measure = 0.0
         daily_bikeshare_trips_per_person = 0.021
         vehicle_to_bikeshare_substitution_rate = 0.196
         bikeshare_avg_oneway_trip_length = 1.4
