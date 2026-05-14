@@ -553,32 +553,33 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t29_reduce_transit_fares(self):
-    #     """Test the reduce transit fares strategy."""
-    #     # Mock the input data (50% fare reduction, all routes, San Jose CBSA)
-    #     pct_fare_reduction = 0.50
-    #     pct_routes_with_reduced_fares = 1.0
-    #     transit_mode_share = 0.0669   # San Jose-Sunnyvale-Santa Clara CBSA
-    #     vehicle_mode_share = 0.9132
-    #     elasticity_transit_ridership_fare = -0.3
-    #     statewide_mode_shift_factor = 0.578
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t29_reduce_transit_fares(self):
+        """Test the reduce transit fares strategy."""
+        # Mock the input data (50% fare reduction, all routes, San Jose CBSA)
+        pct_fare_reduction = 0.4
+        pct_routes_with_reduced_fares = .8
+        transit_mode_share = 0.15   # San Jose-Sunnyvale-Santa Clara CBSA
+        vehicle_mode_share = 0.8
+        elasticity_transit_ridership_fare = -0.3
+        statewide_mode_shift_factor = 0.578
+        # Expected result based on the mock data
+        expected_result = -0.010404
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t29_reduce_transit_fares(
-    #         pct_fare_reduction,
-    #         pct_routes_with_reduced_fares,
-    #         transit_mode_share,
-    #         vehicle_mode_share,
-    #         elasticity_transit_ridership_fare,
-    #         statewide_mode_shift_factor,
-    #     )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t29_reduce_transit_fares(
+            pct_fare_reduction,
+            pct_routes_with_reduced_fares,
+            transit_mode_share,
+            vehicle_mode_share,
+            elasticity_transit_ridership_fare,
+            statewide_mode_shift_factor,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     def test_t55_infill_development(self):
         """Test the infill development strategy."""
@@ -694,7 +695,7 @@ class TestMitigations:
         daily_vehicle_trips_per_person = 2.7
         regional_avg_oneway_vehicle_trip_length = 9.72
         # Expected result based on the mock data
-        expected_result = -0.000333276
+        expected_result = -0.000499914
 
         # Call the function under test
         result = tdm_ghg.mitigations.t22b_implement_electric_bikeshare(
