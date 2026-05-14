@@ -683,67 +683,96 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t22b_implement_electric_bikeshare(self):
-    #     """Test the electric bikeshare strategy."""
-    #     # Mock the input data
-    #     pct_residences_with_access_with_measure = 0.50
-    #     pct_residences_with_access_without_measure = 0.0
-    #     daily_ebikeshare_trips_per_person = 0.021
-    #     vehicle_to_ebikeshare_substitution_rate = 0.35
-    #     ebikeshare_avg_oneway_trip_length = 2.1
-    #     daily_vehicle_trips_per_person = 2.7
-    #     regional_avg_oneway_vehicle_trip_length = 9.72
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t22b_implement_electric_bikeshare(self):
+        """Test the electric bikeshare strategy."""
+        # Mock the input data
+        pct_residences_with_access_with_measure = 0.85
+        pct_residences_with_access_without_measure = 0.0
+        daily_ebikeshare_trips_per_person = 0.021
+        vehicle_to_ebikeshare_substitution_rate = 0.35
+        ebikeshare_avg_oneway_trip_length = 2.1
+        daily_vehicle_trips_per_person = 2.7
+        regional_avg_oneway_vehicle_trip_length = 9.72
+        # Expected result based on the mock data
+        expected_result = -0.000333276
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t22b_implement_electric_bikeshare(
-    #         pct_residences_with_access_with_measure,
-    #         pct_residences_with_access_without_measure,
-    #         daily_ebikeshare_trips_per_person,
-    #         vehicle_to_ebikeshare_substitution_rate,
-    #         ebikeshare_avg_oneway_trip_length,
-    #         daily_vehicle_trips_per_person,
-    #         regional_avg_oneway_vehicle_trip_length,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t22b_implement_electric_bikeshare(
+            pct_residences_with_access_with_measure,
+            pct_residences_with_access_without_measure,
+            daily_ebikeshare_trips_per_person,
+            vehicle_to_ebikeshare_substitution_rate,
+            ebikeshare_avg_oneway_trip_length,
+            daily_vehicle_trips_per_person,
+            regional_avg_oneway_vehicle_trip_length,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
-    # def test_t22d_transition_conventional_to_electric_bikeshare(self):
-    #     """Test the transition to electric bikeshare strategy."""
-    #     # Mock the input data
-    #     pct_residences_with_traditional_bikeshare_access = 0.40
-    #     pct_bikes_transitioned_to_electric = 0.50
-    #     daily_bikeshare_trips_per_person = 0.021
-    #     vehicle_to_ebikeshare_substitution_rate = 0.35
-    #     ebikeshare_avg_oneway_trip_length = 2.1
-    #     vehicle_to_conventional_bikeshare_substitution_rate = 0.196
-    #     conventional_bikeshare_avg_oneway_trip_length = 1.4
-    #     daily_vehicle_trips_per_person = 1.7
-    #     regional_avg_oneway_vehicle_trip_length = 9.72
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t22c_implement_scootershare(self):
+        """Test the scootershare strategy."""
+        # Mock the input data
+        pct_residences_with_access_with_measure = 0.85
+        pct_residences_with_access_without_measure = 0.0
+        daily_scootershare_trips_per_person = 0.021
+        vehicle_to_scootershare_substitution_rate = 0.385
+        scootershare_avg_oneway_trip_length = 2.14
+        daily_vehicle_trips_per_person = 2.7
+        regional_avg_oneway_vehicle_trip_length = 9.72
+        # Expected result based on the mock data
+        expected_result = -0.00056
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t22d_transition_conventional_to_electric_bikeshare(
-    #         pct_residences_with_traditional_bikeshare_access,
-    #         pct_bikes_transitioned_to_electric,
-    #         daily_bikeshare_trips_per_person,
-    #         vehicle_to_ebikeshare_substitution_rate,
-    #         ebikeshare_avg_oneway_trip_length,
-    #         vehicle_to_conventional_bikeshare_substitution_rate,
-    #         conventional_bikeshare_avg_oneway_trip_length,
-    #         daily_vehicle_trips_per_person,
-    #         regional_avg_oneway_vehicle_trip_length,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t22c_implement_scootershare(
+            pct_residences_with_access_with_measure,
+            pct_residences_with_access_without_measure,
+            daily_scootershare_trips_per_person,
+            vehicle_to_scootershare_substitution_rate,
+            scootershare_avg_oneway_trip_length,
+            daily_vehicle_trips_per_person,
+            regional_avg_oneway_vehicle_trip_length,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
+
+    def test_t22d_transition_conventional_to_electric_bikeshare(self):
+        """Test the transition to electric bikeshare strategy."""
+        # Mock the input data
+        pct_residences_with_traditional_bikeshare_access = 0.85
+        pct_bikes_transitioned_to_electric = 0.85
+        daily_bikeshare_trips_per_person = 0.021
+        vehicle_to_ebikeshare_substitution_rate = 0.35
+        ebikeshare_avg_oneway_trip_length = 2.1
+        vehicle_to_conventional_bikeshare_substitution_rate = 0.196
+        conventional_bikeshare_avg_oneway_trip_length = 1.4
+        daily_vehicle_trips_per_person = 1.7
+        regional_avg_oneway_vehicle_trip_length = 9.72
+        # Expected result based on the mock data
+        expected_result = -0.0004
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t22d_transition_conventional_to_electric_bikeshare(
+            pct_residences_with_traditional_bikeshare_access,
+            pct_bikes_transitioned_to_electric,
+            daily_bikeshare_trips_per_person,
+            vehicle_to_ebikeshare_substitution_rate,
+            ebikeshare_avg_oneway_trip_length,
+            vehicle_to_conventional_bikeshare_substitution_rate,
+            conventional_bikeshare_avg_oneway_trip_length,
+            daily_vehicle_trips_per_person,
+            regional_avg_oneway_vehicle_trip_length,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     def test_t26_increase_transit_service_frequency(self):
         """Test the transit service frequency strategy."""
