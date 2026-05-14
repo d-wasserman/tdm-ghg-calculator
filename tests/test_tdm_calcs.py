@@ -528,32 +528,30 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t25_extend_transit_network_coverage_or_hours(self):
-    #     """Test the extend transit network coverage or hours strategy."""
-    #     # Mock the input data (100% service expansion, SF-Oakland CBSA transit mode share)
-    #     existing_transit_service = 100.0
-    #     proposed_transit_service = 200.0
-    #     transit_mode_share = 0.1138  # SF-Oakland-Hayward CBSA
-    #     elasticity_transit_demand_service = 0.7
-    #     statewide_mode_shift_factor = 0.578
-    #     ratio_vmt_to_vehicle_trips = 1.0
-    #     # Expected result (capped at Amax): -0.046
-    #     expected_result = -0.046
+    def test_t25_extend_transit_network_coverage_or_hours(self):
+        """Test the extend transit network coverage or hours strategy."""
+        # Mock the input data (100% service expansion, SF-Oakland CBSA transit mode share)
+        existing_transit_service = 300
+        proposed_transit_service = 450
+        transit_mode_share = 0.2
+        elasticity_transit_demand_service = 0.7
+        statewide_mode_shift_factor = 0.578
+        ratio_vmt_to_vehicle_trips = 1.0
+        expected_result = -0.0405
+        # Call the function under test
+        result = tdm_ghg.mitigations.t25_extend_transit_network_coverage_or_hours(
+            existing_transit_service,
+            proposed_transit_service,
+            transit_mode_share,
+            elasticity_transit_demand_service,
+            statewide_mode_shift_factor,
+            ratio_vmt_to_vehicle_trips,
+        )
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t25_extend_transit_network_coverage_or_hours(
-    #         existing_transit_service,
-    #         proposed_transit_service,
-    #         transit_mode_share,
-    #         elasticity_transit_demand_service,
-    #         statewide_mode_shift_factor,
-    #         ratio_vmt_to_vehicle_trips,
-    #     )
-
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t29_reduce_transit_fares(self):
     #     """Test the reduce transit fares strategy."""
