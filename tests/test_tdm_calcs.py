@@ -626,34 +626,34 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t20_expand_bikeway_network(self):
-    #     """Test the expand bikeway network strategy."""
-    #     # Mock the input data
-    #     existing_bikeway_miles_in_community = 100.0
-    #     proposed_bikeway_miles_in_community = 150.0
-    #     bike_mode_share = 0.01
-    #     vehicle_mode_share = 0.85
-    #     average_oneway_bicycle_trip_length = 2.3
-    #     average_oneway_vehicle_trip_length = 10.5
-    #     elasticity_of_bike_commuters_per_pop = 0.25
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t20_expand_bikeway_network(self):
+        """Test the expand bikeway network strategy."""
+        # Mock the input data
+        existing_bikeway_miles_in_community = 20.0
+        proposed_bikeway_miles_in_community = 100.0
+        bike_mode_share = 0.03
+        vehicle_mode_share = 0.85
+        average_oneway_bicycle_trip_length = 2.3
+        average_oneway_vehicle_trip_length = 10.5
+        elasticity_of_bike_commuters_per_pop = 0.25
+        # Expected result based on the mock data
+        expected_result = -0.00773
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t20_expand_bikeway_network(
-    #         existing_bikeway_miles_in_community,
-    #         proposed_bikeway_miles_in_community,
-    #         bike_mode_share,
-    #         vehicle_mode_share,
-    #         average_oneway_bicycle_trip_length,
-    #         average_oneway_vehicle_trip_length,
-    #         elasticity_of_bike_commuters_per_pop,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t20_expand_bikeway_network(
+            existing_bikeway_miles_in_community,
+            proposed_bikeway_miles_in_community,
+            bike_mode_share,
+            vehicle_mode_share,
+            average_oneway_bicycle_trip_length,
+            average_oneway_vehicle_trip_length,
+            elasticity_of_bike_commuters_per_pop,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t22a_implement_pedal_bikeshare(self):
     #     """Test the pedal bikeshare strategy."""
