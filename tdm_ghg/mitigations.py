@@ -1189,6 +1189,88 @@ def t22b_implement_electric_bikeshare(
          / (daily_vehicle_trips_per_person * regional_avg_oneway_vehicle_trip_length))
     return max(a, -0.0006)
 
+@register_measure(
+    measure_id="T-22-C",
+    name="Implement Scootershare Program",
+    subsector="neighborhood_design",
+    scale=_PC,
+    location_types={_U, _S},
+    measure_max=0.0007,
+)
+def t22c_implement_scootershare(
+        pct_residences_with_access_with_measure,
+        pct_residences_with_access_without_measure=0.0,
+        daily_scootershare_trips_per_person=0.021,
+        vehicle_to_scootershare_substitution_rate=0.385,
+        scootershare_avg_oneway_trip_length=2.14,
+        daily_vehicle_trips_per_person=2.7,
+        regional_avg_oneway_vehicle_trip_length=9.72):
+    """Measure T-22-C: Implement Scootershare Program.
+    Deploys shared scooters (docked or dockless) accessible to residents for
+    short trips, replacing vehicle trips within the community. Does not account
+    for electricity to charge scooters or staff rebalancing vehicle trips
+    (conservative estimate). Applies to vehicle travel in the plan/community.
+
+    Formula: A = -1 * ((C - B) * D * E * F) / (G * H)
+
+    Access is measured as the percent of residences within 0.25-mile of a
+    scootershare station; for dockless scooters, all residences within
+    0.25-mile of the designated dockless service area are considered to have
+    access.
+
+    Parameters
+    ----------
+    pct_residences_with_access_with_measure : float
+        (C) Percent of residences in plan/community with access to scootershare
+        WITH the measure (as a decimal, e.g., 0.50 for 50%). Range 0-1.
+        User input.
+    pct_residences_with_access_without_measure : float, optional
+        (B) Percent of residences in plan/community with access to scootershare
+        WITHOUT the measure (as a decimal). Range 0-1. Default is 0.0.
+        User input.
+    daily_scootershare_trips_per_person : float, optional
+        (D) Daily scootershare trips per person in locations with access
+        [trips/day/person]. Default is 0.021, the low (conservative) end of
+        the 21-25 bikeshare trips per 1,000 residents range reported for
+        San Francisco Bay Area service areas (MTC 2017); bikeshare data used
+        due to lack of scootershare-specific data.
+    vehicle_to_scootershare_substitution_rate : float, optional
+        (E) Fraction of scootershare trips that substitute for vehicle trips
+        (as a decimal). Default is 0.385 (38.5%), the average car-trip
+        substitution rate found in a literature review of scootershare
+        programs in Santa Monica, Minneapolis, San Francisco, and Portland
+        (McQueen et al. 2020).
+    scootershare_avg_oneway_trip_length : float, optional
+        (F) Scootershare average one-way trip length [miles per trip].
+        Default is 2.14, from Portland's scootershare pilot data dashboard
+        (PBOT 2021).
+    daily_vehicle_trips_per_person : float, optional
+        (G) Daily vehicle trips per person [trips/day/person]. Default is 2.7,
+        the U.S. average from the 2017 National Household Travel Survey
+        summary report (FHWA 2018).
+    regional_avg_oneway_vehicle_trip_length : float, optional
+        (H) Regional average one-way vehicle trip length [miles per trip].
+        Ideally calculated for the plan/community at a scale no larger than a
+        census tract (U.S. Census, California Household Travel Survey
+        preferred, or local survey). If unavailable, use the regional average
+        for one of the six most populated CBSAs in California from Table
+        T-10.1 in Appendix C (FHWA 2017); trip lengths are likely longer
+        outside the listed CBSAs. Default is 9.72 (Los Angeles CBSA).
+
+    Returns
+    -------
+    float
+        (A) Percent reduction in GHG emissions from vehicle travel in the
+        plan/community (as a decimal). Capped at -0.0007 (-0.07%). Negative
+        values indicate reductions.
+    """
+    a = (-1 * ((pct_residences_with_access_with_measure
+                - pct_residences_with_access_without_measure)
+               * daily_scootershare_trips_per_person
+               * vehicle_to_scootershare_substitution_rate
+               * scootershare_avg_oneway_trip_length)
+         / (daily_vehicle_trips_per_person * regional_avg_oneway_vehicle_trip_length))
+    return max(a, -0.0007)
 
 @register_measure(
     measure_id="T-22-D",
@@ -1374,68 +1456,6 @@ def t21b_implement_electric_carshare(
          / (total_vmt_plan_community * fleet_emission_factor))
     return max(a, -0.0018)
 
-
-@register_measure(
-    measure_id="T-22-C",
-    name="Implement Scootershare Program",
-    subsector="neighborhood_design",
-    scale=_PC,
-    location_types={_U, _S},
-    measure_max=0.0007,
-)
-def t22c_implement_scootershare(
-        pct_residences_with_access_with_measure,
-        pct_residences_with_access_without_measure=0.0,
-        daily_scootershare_trips_per_person=0.021,
-        vehicle_to_scootershare_substitution_rate=0.385,
-        scootershare_avg_oneway_trip_length=2.14,
-        daily_vehicle_trips_per_person=2.7,
-        regional_avg_oneway_vehicle_trip_length=9.72):
-    """Measure T-22-C: Implement Scootershare Program.
-    Deploys shared e-scooters accessible to residents for short trips, replacing
-    vehicle trips within the community. Does not account for electricity to
-    charge scooters or staff vehicle trips (conservative estimate).
-    Applies to vehicle travel in the plan/community.
-
-    Formula: A = -1 * ((C - B) * D * E * F) / (G * H)
-
-    Parameters
-    ----------
-    pct_residences_with_access_with_measure : float
-        Percent of residences within access distance of scootershare WITH the
-        measure (as a decimal, e.g., 0.50 for 50%).
-    pct_residences_with_access_without_measure : float, optional
-        Percent of residences with access WITHOUT the measure (as a decimal).
-        Default is 0.0.
-    daily_scootershare_trips_per_person : float, optional
-        Daily scootershare trips per person in locations with access.
-        Default is 0.021 (MTC 2017 SF Bay Area scooter usage data).
-    vehicle_to_scootershare_substitution_rate : float, optional
-        Fraction of scootershare trips that substitute for vehicle trips.
-        Default is 0.385 (38.5%), per NACTO 2019 scooter mode-shift data.
-    scootershare_avg_oneway_trip_length : float, optional
-        Average one-way scootershare trip length [miles].
-        Default is 2.14 (NACTO 2019).
-    daily_vehicle_trips_per_person : float, optional
-        Average daily vehicle trips per person. Default is 2.7 (NHTS 2017).
-    regional_avg_oneway_vehicle_trip_length : float, optional
-        Regional average one-way vehicle trip length [miles]. From FHWA 2017
-        NHTS Table T-10.1 by CBSA. Default is 9.72 (Los Angeles CBSA).
-
-    Returns
-    -------
-    float
-        Percent reduction in GHG emissions from vehicle travel in the
-        plan/community (as a decimal). Capped at -0.0007 (-0.07%). Negative
-        values indicate reductions.
-    """
-    a = (-1 * ((pct_residences_with_access_with_measure
-                - pct_residences_with_access_without_measure)
-               * daily_scootershare_trips_per_person
-               * vehicle_to_scootershare_substitution_rate
-               * scootershare_avg_oneway_trip_length)
-         / (daily_vehicle_trips_per_person * regional_avg_oneway_vehicle_trip_length))
-    return max(a, -0.0007)
 
 
 # ==============================================================================
