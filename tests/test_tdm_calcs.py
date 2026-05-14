@@ -754,7 +754,7 @@ class TestMitigations:
         daily_vehicle_trips_per_person = 1.7
         regional_avg_oneway_vehicle_trip_length = 9.72
         # Expected result based on the mock data
-        expected_result = -0.0004
+        expected_result = -0.00042292
 
         # Call the function under test
         result = tdm_ghg.mitigations.t22d_transition_conventional_to_electric_bikeshare(
