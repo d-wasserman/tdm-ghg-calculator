@@ -897,60 +897,60 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t40_establish_school_bus_program(self):
-    #     """Test the school bus program strategy."""
-    #     # Mock the input data
-    #     pct_students_who_begin_riding_bus = 0.30
-    #     pct_students_served_by_bus = 0.80
-    #     light_duty_emission_factor = 350.0
-    #     school_bus_emission_factor = 1200.0
-    #     pct_new_riders_who_previously_drove = 0.79
-    #     avg_student_occupancy_cars = 1.58
-    #     avg_student_occupancy_buses = 14.9
-    #     bus_tour_to_driving_distance_ratio = 3.42
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t40_establish_school_bus_program(self):
+        """Test the school bus program strategy."""
+        # Mock the input data
+        pct_students_who_begin_riding_bus = 0.8
+        pct_students_served_by_bus = 0.90
+        light_duty_emission_factor = 350.0
+        school_bus_emission_factor = 1200.0
+        pct_new_riders_who_previously_drove = 0.79
+        avg_student_occupancy_cars = 1.58
+        avg_student_occupancy_buses = 14.9
+        bus_tour_to_driving_distance_ratio = 3.42
+        # Expected result based on the mock data
+        expected_result = -0.13844472
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t40_establish_school_bus_program(
-    #         pct_students_who_begin_riding_bus,
-    #         pct_students_served_by_bus,
-    #         light_duty_emission_factor,
-    #         school_bus_emission_factor,
-    #         pct_new_riders_who_previously_drove,
-    #         avg_student_occupancy_cars,
-    #         avg_student_occupancy_buses,
-    #         bus_tour_to_driving_distance_ratio,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t40_establish_school_bus_program(
+            pct_students_who_begin_riding_bus,
+            pct_students_served_by_bus,
+            light_duty_emission_factor,
+            school_bus_emission_factor,
+            pct_new_riders_who_previously_drove,
+            avg_student_occupancy_cars,
+            avg_student_occupancy_buses,
+            bus_tour_to_driving_distance_ratio,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
-    # def test_t56_active_modes_transportation_youth(self):
-    #     """Test the active modes transportation youth strategy."""
-    #     # Mock the input data
-    #     pct_near_students_driven_after_implementation = 0.30
-    #     pct_students_within_2_miles = 0.62
-    #     pct_near_students_driven_before_implementation = 0.51
-    #     pct_far_students_driven = 0.66
-    #     avg_driving_distance_near_students = 2.0
-    #     avg_driving_distance_far_students = 8.66
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t56_active_modes_transportation_youth(self):
+        """Test the active modes transportation youth strategy."""
+        # Mock the input data
+        pct_near_students_driven_after_implementation = 0.45
+        pct_students_within_2_miles = 0.62
+        pct_near_students_driven_before_implementation = 0.51
+        pct_far_students_driven = 0.66
+        avg_driving_distance_near_students = 2.0
+        avg_driving_distance_far_students = 8.66
+        # Expected result based on the mock data
+        expected_result = -0.02653042
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t56_active_modes_transportation_youth(
-    #         pct_near_students_driven_after_implementation,
-    #         pct_students_within_2_miles,
-    #         pct_near_students_driven_before_implementation,
-    #         pct_far_students_driven,
-    #         avg_driving_distance_near_students,
-    #         avg_driving_distance_far_students,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t56_active_modes_transportation_youth(
+            pct_near_students_driven_after_implementation,
+            pct_students_within_2_miles,
+            pct_near_students_driven_before_implementation,
+            pct_far_students_driven,
+            avg_driving_distance_near_students,
+            avg_driving_distance_far_students,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
