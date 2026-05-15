@@ -860,42 +860,42 @@ class TestMitigations:
             f"Expected {expected_result}, but got {result}"
         )
 
-    # def test_t46_provide_transit_shelters(self):
-    #     """Test the transit shelters strategy."""
-    #     # Mock the input data
-    #     num_stops_with_new_shelters = 20
-    #     avg_boardings_per_day_at_improved_stops = 50.0
-    #     avg_boardings_per_day_across_agency = 25000.0
-    #     transit_mode_share = 0.04
-    #     include_real_time_information = False
-    #     pct_transit_users_who_would_otherwise_drive = 0.833
-    #     avg_auto_occupancy = 1.45
-    #     pct_travel_time_waiting_existing = 0.249
-    #     pct_perceived_waiting_with_shelters = 0.203
-    #     pct_perceived_waiting_with_shelters_and_rti = 0.158
-    #     wait_time_elasticity = -0.54
-    #     # Expected result based on the mock data
-    #     expected_result = 0
+    def test_t46_provide_transit_shelters(self):
+        """Test the transit shelters strategy."""
+        # Mock the input data
+        num_stops_with_new_shelters = 20
+        avg_boardings_per_day_at_improved_stops = 200.0
+        avg_boardings_per_day_across_agency = 12000.0
+        transit_mode_share = 0.15
+        include_real_time_information = True
+        pct_transit_users_who_would_otherwise_drive = 0.833
+        avg_auto_occupancy = 1.45
+        pct_travel_time_waiting_existing = 0.249
+        pct_perceived_waiting_with_shelters = 0.203
+        pct_perceived_waiting_with_shelters_and_rti = 0.158
+        wait_time_elasticity = -0.54
+        # Expected result based on the mock data
+        expected_result = -0.000713508
 
-    #     # Call the function under test
-    #     result = tdm_ghg.mitigations.t46_provide_transit_shelters(
-    #         num_stops_with_new_shelters,
-    #         avg_boardings_per_day_at_improved_stops,
-    #         avg_boardings_per_day_across_agency,
-    #         transit_mode_share,
-    #         include_real_time_information,
-    #         pct_transit_users_who_would_otherwise_drive,
-    #         avg_auto_occupancy,
-    #         pct_travel_time_waiting_existing,
-    #         pct_perceived_waiting_with_shelters,
-    #         pct_perceived_waiting_with_shelters_and_rti,
-    #         wait_time_elasticity,
-    #     )
+        # Call the function under test
+        result = tdm_ghg.mitigations.t46_provide_transit_shelters(
+            num_stops_with_new_shelters,
+            avg_boardings_per_day_at_improved_stops,
+            avg_boardings_per_day_across_agency,
+            transit_mode_share,
+            include_real_time_information,
+            pct_transit_users_who_would_otherwise_drive,
+            avg_auto_occupancy,
+            pct_travel_time_waiting_existing,
+            pct_perceived_waiting_with_shelters,
+            pct_perceived_waiting_with_shelters_and_rti,
+            wait_time_elasticity,
+        )
 
-    #     # Assert that the result matches the expected output
-    #     assert isclose(result, expected_result, rel_tol=1e-2), (
-    #         f"Expected {expected_result}, but got {result}"
-    #     )
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
 
     # def test_t40_establish_school_bus_program(self):
     #     """Test the school bus program strategy."""
