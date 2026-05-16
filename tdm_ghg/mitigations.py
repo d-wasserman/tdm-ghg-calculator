@@ -2074,7 +2074,7 @@ def t40_establish_school_bus_program(
     car_ghg_per_student = light_duty_emission_factor / avg_student_occupancy_cars
     bus_ghg_per_student = (bus_tour_to_driving_distance_ratio
                            * school_bus_emission_factor / avg_student_occupancy_buses)
-    a = (pct_students_who_begin_riding_bus
+    a = -1 * (pct_students_who_begin_riding_bus
          * pct_students_served_by_bus
          * pct_new_riders_who_previously_drove
          * (bus_ghg_per_student - car_ghg_per_student)
