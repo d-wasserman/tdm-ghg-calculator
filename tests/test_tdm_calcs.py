@@ -968,7 +968,6 @@ class TestMitigations:
         average_oneway_bicycle_trip_length = 2.9
         average_oneway_vehicle_trip_length = 10.9
         # Expected result based on the mock data
-        # A = -1.0 * (307/365) * (0.0207 + 0.003) * 1.54 * 2.9 / 10.9 ≈ -0.008
         expected_result = -0.008
 
         # Call the function under test
@@ -998,7 +997,6 @@ class TestMitigations:
         vehicle_mode_share_work_trips = 0.866
         bike_mode_adjustment_factor = 1.14
         # Expected result based on the mock data
-        # A = 1.0 * 2.8 * (0.041 - 1.14 * 0.041) / (11.5 * 0.866) ≈ -0.001614
         expected_result = -0.001614
 
         # Call the function under test
@@ -1024,7 +1022,6 @@ class TestMitigations:
         existing_vehicle_emission_factor = 400.0  # g CO2e/mile
         bev_efficiency_kwh_per_mile = 0.33
         electricity_carbon_intensity = 0.0  # zero-carbon grid
-        # Expected result: 0.5 * (0 - 400)/400 = -0.5
         expected_result = -0.50
 
         # Call the function under test
