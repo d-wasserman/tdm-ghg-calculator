@@ -1009,6 +1009,143 @@ def t18_provide_pedestrian_network_improvement(
 
 
 @register_measure(
+    measure_id="T-19-A",
+    name="Construct or Improve Bike Facility",
+    subsector="neighborhood_design",
+    scale=_PC,
+    location_types={_U, _S},
+    measure_max=0.008,
+)
+def t19a_construct_or_improve_bike_facility(
+        pct_community_vmt_on_parallel_roadway,
+        active_transportation_adjustment_factor,
+        key_destination_credit,
+        growth_factor_adjustment,
+        annual_days_of_use,
+        average_oneway_bicycle_trip_length=2.9,
+        average_oneway_vehicle_trip_length=10.9,
+        days_per_year=365):
+    """Measure T-19-A: Construct or Improve Bike Facility.
+    Constructs or improves a single Class I, II, or IV bicycle lane facility
+    connecting to a larger existing bikeway network. Encourages mode shift from
+    vehicles to bicycles on the parallel roadway, displacing VMT.
+    Applies to vehicle travel on the roadway parallel to the bike facility,
+    scaled to plan/community VMT (Plan/Community scale).
+
+    Formula: A = -B * (F / I) * (C + D) * E * G / H
+
+    Parameters
+    ----------
+    pct_community_vmt_on_parallel_roadway : float
+        Percent of plan/community VMT on the parallel roadway (as a decimal).
+    active_transportation_adjustment_factor : float
+        Adjustment factor based on roadway AADT, facility length, and city
+        population. Look up from CARB 2020 Table T-19.1 in Appendix C.
+    key_destination_credit : float
+        Credit for the number of key destinations within 0.5 mile of the
+        facility. Look up from CARB 2020 Table T-19.2 in Appendix C.
+    growth_factor_adjustment : float
+        Growth factor based on bike facility type (Class I, II, or IV).
+        Look up from CARB 2020 Table T-19.3 in Appendix C.
+    annual_days_of_use : int
+        Annual days of use of the new facility (days/year). Look up from
+        NOAA 2017 Table T-19.4 by county (days per year with <=0.1 in. rainfall).
+    average_oneway_bicycle_trip_length : float, optional
+        Regional average one-way bicycle trip length [miles]. Default is 2.9
+        miles (Sacramento-Roseville-Arden-Arcade CBSA from FHWA 2017 Table T-10.1).
+    average_oneway_vehicle_trip_length : float, optional
+        Regional average one-way vehicle trip length [miles]. Default is 10.9
+        miles (Sacramento-Roseville-Arden-Arcade CBSA from FHWA 2017 Table T-10.1).
+    days_per_year : int, optional
+        Days per year. Default is 365.
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from vehicles on the parallel
+        roadway (as a decimal). Capped at -0.008 (-0.8%) using default CBSA
+        data. Negative values indicate reductions.
+    """
+    use_fraction = annual_days_of_use / days_per_year
+    a = (-pct_community_vmt_on_parallel_roadway
+         * use_fraction
+         * (active_transportation_adjustment_factor + key_destination_credit)
+         * growth_factor_adjustment
+         * average_oneway_bicycle_trip_length
+         / average_oneway_vehicle_trip_length)
+    return max(a, -0.008)
+
+
+@register_measure(
+    measure_id="T-19-B",
+    name="Construct or Improve Bike Boulevard",
+    subsector="neighborhood_design",
+    scale=_PC,
+    location_types={_U, _S},
+    measure_max=0.002,
+)
+def t19b_construct_or_improve_bike_boulevard(
+        pct_community_vmt_on_roadway,
+        average_oneway_bicycle_trip_length=2.8,
+        average_oneway_vehicle_trip_length=11.5,
+        bicycle_mode_share_work_trips=0.041,
+        vehicle_mode_share_work_trips=0.866,
+        bike_mode_adjustment_factor=1.14):
+    """Measure T-19-B: Construct or Improve Bike Boulevard.
+    Constructs or improves a Class III bicycle boulevard — a low-speed,
+    low-volume local or collector roadway with treatments that prioritize
+    pedestrian and bicycle access. Encourages mode shift from vehicles to
+    bicycles, displacing VMT.
+    Applies to vehicle travel on the roadway with the bicycle boulevard,
+    scaled to plan/community VMT (Plan/Community scale).
+
+    Formula: A = B * D * (F - (C * F)) / (E * G)
+
+    Because the bike mode adjustment factor C (1.14) is greater than 1, the
+    term (F - C*F) is negative, yielding a negative A (reduction).
+
+    Parameters
+    ----------
+    pct_community_vmt_on_roadway : float
+        Percent of plan/community VMT on the roadway with the bicycle
+        boulevard (as a decimal).
+    average_oneway_bicycle_trip_length : float, optional
+        Existing bicycle trip length for all trips in region [miles]. Default
+        is 2.8 miles (San Jose-Sunnyvale-Santa Clara CBSA from FHWA 2017a
+        Table T-10.1).
+    average_oneway_vehicle_trip_length : float, optional
+        Existing vehicle trip length for all trips in region [miles]. Default
+        is 11.5 miles (San Jose-Sunnyvale-Santa Clara CBSA from FHWA 2017a
+        Table T-10.1).
+    bicycle_mode_share_work_trips : float, optional
+        Existing bicycle mode share for work trips in region (as a decimal).
+        Default is 0.041 (4.1%, San Jose-Sunnyvale-Santa Clara CBSA from
+        FHWA 2017a Table T-10.2).
+    vehicle_mode_share_work_trips : float, optional
+        Existing vehicle mode share for work trips in region (as a decimal).
+        Default is 0.866 (86.6%, San Jose-Sunnyvale-Santa Clara CBSA from
+        FHWA 2017a Table T-10.2).
+    bike_mode_adjustment_factor : float, optional
+        Bike mode adjustment factor representing average bicycle ridership
+        increase after a boulevard is installed. Default is 1.14 (114%
+        increase; Schwartz 2021).
+
+    Returns
+    -------
+    float
+        Percent reduction in GHG emissions from vehicles on the roadway
+        (as a decimal). Capped at -0.002 (-0.2%) using default CBSA data.
+        Negative values indicate reductions.
+    """
+    numerator = (average_oneway_bicycle_trip_length
+                 * (bicycle_mode_share_work_trips
+                    - bike_mode_adjustment_factor * bicycle_mode_share_work_trips))
+    denominator = average_oneway_vehicle_trip_length * vehicle_mode_share_work_trips
+    a = pct_community_vmt_on_roadway * numerator / denominator
+    return max(a, -0.002)
+
+
+@register_measure(
     measure_id="T-20",
     name="Expand Bikeway Network",
     subsector="neighborhood_design",
@@ -2145,3 +2282,134 @@ def t56_active_modes_transportation_youth(
     denominator = g * e * (1 - c) + c * d * f
     a = c * f * (b - d) / denominator
     return max(a, -0.222)
+
+
+# ==============================================================================
+# CLEAN VEHICLES AND FUELS SUBSECTOR (Plan/Community)
+# Measure T-30
+# Subsector cap: 100% (single measure)
+# ==============================================================================
+
+@register_measure(
+    measure_id="T-30",
+    name="Use Cleaner-Fuel Vehicles",
+    subsector="clean_vehicles",
+    scale=_PC,
+    location_types={_U, _S, _R},
+    measure_max=1.0,
+)
+def t30_use_cleaner_fuel_vehicles(
+        pct_fleet_converted,
+        existing_vehicle_emission_factor,
+        vehicle_type="BEV",
+        bev_efficiency_kwh_per_mile=0.33,
+        electricity_carbon_intensity=0.0,
+        pct_phev_miles_electric=0.46,
+        hybrid_to_gasoline_mpg_ratio=1.5,
+        cleaner_fuel_wtw_emission_factor=None,
+        existing_vehicle_wtw_emission_factor=None):
+    """Measure T-30: Use Cleaner-Fuel Vehicles.
+    Replaces conventional gasoline or diesel vehicles with cleaner-fuel
+    vehicles (battery electric, plug-in hybrid, natural gas, propane, or
+    biofuels). Supports three calculation modes:
+
+      - "BEV"  (A1): Tank-to-wheels for battery electric vehicles, includes
+                     upstream electricity generation emissions.
+      - "PHEV" (A2): Tank-to-wheels for plug-in hybrids; accounts for
+                     fraction of miles in electric mode.
+      - "WTW"  (A3): Well-to-wheels analysis for any cleaner fuel/vehicle.
+
+    Applies to on-road vehicle emissions (Plan/Community scale; the measure
+    is the sole quantified measure in the Clean Vehicles and Fuels subsector).
+
+    Formulas:
+        A1 = B * ((D * E * F * G) - C) / C
+        A2 = B * ((D * E * F * G * H) + (C * (1/I) * (1 - H)) - C) / C
+        A3 = B * (J - K) / K
+
+    Parameters
+    ----------
+    pct_fleet_converted : float
+        Percent of vehicle fleet being converted to cleaner fuels (as a
+        decimal, 0.0-1.0).
+    existing_vehicle_emission_factor : float
+        Tailpipe emission factor for the existing (conventional fuel) vehicle
+        [g CO2e/mile]. Obtain from CARB EMFAC for the region, project year,
+        season, vehicle category, model year, and fuel type.
+    vehicle_type : str, optional
+        Calculation mode: "BEV" (A1), "PHEV" (A2), or "WTW" (A3). Default
+        is "BEV". Case-insensitive.
+    bev_efficiency_kwh_per_mile : float, optional
+        BEV energy efficiency [kWh/mile]. Default is 0.33 (typical California
+        light-duty BEV; CARB 2020a Table T-30.1).
+    electricity_carbon_intensity : float, optional
+        Carbon intensity of local electricity provider [lb CO2e/MWh].
+        Default is 0.0 (100% renewable; replace with utility-specific value
+        from CARB Tables E-4.3 and E-4.4).
+    pct_phev_miles_electric : float, optional
+        Fraction of PHEV miles traveled in electric mode (as a decimal).
+        Default is 0.46 (CARB 2020a, EMFAC2017 v1.0.3).
+    hybrid_to_gasoline_mpg_ratio : float, optional
+        Ratio of average hybrid vehicle mpg to comparable gasoline mpg.
+        Default is 1.5 (U.S. DOE 2021 Toyota Camry/Corolla comparison).
+    cleaner_fuel_wtw_emission_factor : float, optional
+        Well-to-wheels emission factor for cleaner vehicle/fuel [g CO2e/mile].
+        Required when ``vehicle_type="WTW"``. Source: CARB 2020a/b/c
+        Table T-30.2 in Appendix C.
+    existing_vehicle_wtw_emission_factor : float, optional
+        Well-to-wheels emission factor for existing (conventional fuel)
+        vehicle [g CO2e/mile]. Required when ``vehicle_type="WTW"``. Source:
+        CARB 2020a/b/c Table T-30.2 in Appendix C.
+
+    Returns
+    -------
+    float
+        Percent reduction in on-road vehicle GHG emissions (as a decimal).
+        BEV/WTW capped at -1.0 (-100%). PHEV is naturally capped near -0.64
+        (-64%) by the formula structure when grid carbon intensity is zero
+        and the entire fleet is converted. Negative values indicate
+        reductions; positive values indicate net increase (dirty grid).
+
+    Raises
+    ------
+    ValueError
+        If ``vehicle_type`` is not one of "BEV", "PHEV", "WTW", or if
+        well-to-wheels emission factors are missing for WTW mode.
+    """
+    lb_to_g = 454
+    kwh_to_mwh = 0.001
+    mode = vehicle_type.upper()
+
+    if mode == "BEV":
+        electricity_emission_rate = (bev_efficiency_kwh_per_mile
+                                     * electricity_carbon_intensity
+                                     * lb_to_g * kwh_to_mwh)
+        a = (pct_fleet_converted
+             * (electricity_emission_rate - existing_vehicle_emission_factor)
+             / existing_vehicle_emission_factor)
+    elif mode == "PHEV":
+        electricity_emission_rate = (bev_efficiency_kwh_per_mile
+                                     * electricity_carbon_intensity
+                                     * lb_to_g * kwh_to_mwh)
+        gasoline_mode_emissions = (existing_vehicle_emission_factor
+                                   * (1 / hybrid_to_gasoline_mpg_ratio)
+                                   * (1 - pct_phev_miles_electric))
+        net = (electricity_emission_rate * pct_phev_miles_electric
+               + gasoline_mode_emissions
+               - existing_vehicle_emission_factor)
+        a = pct_fleet_converted * net / existing_vehicle_emission_factor
+    elif mode == "WTW":
+        if (cleaner_fuel_wtw_emission_factor is None
+                or existing_vehicle_wtw_emission_factor is None):
+            raise ValueError(
+                "WTW mode requires both cleaner_fuel_wtw_emission_factor (J) "
+                "and existing_vehicle_wtw_emission_factor (K).")
+        a = (pct_fleet_converted
+             * (cleaner_fuel_wtw_emission_factor
+                - existing_vehicle_wtw_emission_factor)
+             / existing_vehicle_wtw_emission_factor)
+    else:
+        raise ValueError(
+            f"vehicle_type must be 'BEV', 'PHEV', or 'WTW' (got {vehicle_type!r}).")
+
+    return max(a, -1.0)

@@ -954,3 +954,139 @@ class TestMitigations:
         assert isclose(result, expected_result, rel_tol=1e-2), (
             f"Expected {expected_result}, but got {result}"
         )
+
+    def test_t19a_construct_or_improve_bike_facility(self):
+        """Test the construct/improve bike facility strategy (T-19-A Amax)."""
+        # Mock the input data (CAPCOA Amax example: B=100%, Sacramento CBSA,
+        # highest C, D, E values from Tables T-19.1–T-19.3, Sacramento County
+        # annual days of use from Table T-19.4.)
+        pct_community_vmt_on_parallel_roadway = 1.0
+        active_transportation_adjustment_factor = 0.0207
+        key_destination_credit = 0.003
+        growth_factor_adjustment = 1.54
+        annual_days_of_use = 307
+        average_oneway_bicycle_trip_length = 2.9
+        average_oneway_vehicle_trip_length = 10.9
+        # Expected result based on the mock data
+        # A = -1.0 * (307/365) * (0.0207 + 0.003) * 1.54 * 2.9 / 10.9 ≈ -0.008
+        expected_result = -0.008
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t19a_construct_or_improve_bike_facility(
+            pct_community_vmt_on_parallel_roadway,
+            active_transportation_adjustment_factor,
+            key_destination_credit,
+            growth_factor_adjustment,
+            annual_days_of_use,
+            average_oneway_bicycle_trip_length,
+            average_oneway_vehicle_trip_length,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=2e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
+
+    def test_t19b_construct_or_improve_bike_boulevard(self):
+        """Test the construct/improve bike boulevard strategy (T-19-B Amax)."""
+        # Mock the input data (CAPCOA Amax example: B=100%, San
+        # Jose-Sunnyvale-Santa Clara CBSA defaults from Tables T-10.1/T-10.2.)
+        pct_community_vmt_on_roadway = 1.0
+        average_oneway_bicycle_trip_length = 2.8
+        average_oneway_vehicle_trip_length = 11.5
+        bicycle_mode_share_work_trips = 0.041
+        vehicle_mode_share_work_trips = 0.866
+        bike_mode_adjustment_factor = 1.14
+        # Expected result based on the mock data
+        # A = 1.0 * 2.8 * (0.041 - 1.14 * 0.041) / (11.5 * 0.866) ≈ -0.001614
+        expected_result = -0.001614
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t19b_construct_or_improve_bike_boulevard(
+            pct_community_vmt_on_roadway,
+            average_oneway_bicycle_trip_length,
+            average_oneway_vehicle_trip_length,
+            bicycle_mode_share_work_trips,
+            vehicle_mode_share_work_trips,
+            bike_mode_adjustment_factor,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
+
+    def test_t30_use_cleaner_fuel_vehicles_bev(self):
+        """Test the BEV mode of T-30 (CAPCOA example: 50% fleet conversion,
+        renewable electricity provider)."""
+        # Mock the input data
+        pct_fleet_converted = 0.50
+        existing_vehicle_emission_factor = 400.0  # g CO2e/mile
+        bev_efficiency_kwh_per_mile = 0.33
+        electricity_carbon_intensity = 0.0  # zero-carbon grid
+        # Expected result: 0.5 * (0 - 400)/400 = -0.5
+        expected_result = -0.50
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t30_use_cleaner_fuel_vehicles(
+            pct_fleet_converted,
+            existing_vehicle_emission_factor,
+            vehicle_type="BEV",
+            bev_efficiency_kwh_per_mile=bev_efficiency_kwh_per_mile,
+            electricity_carbon_intensity=electricity_carbon_intensity,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
+
+    def test_t30_use_cleaner_fuel_vehicles_phev(self):
+        """Test the PHEV mode of T-30 (50% fleet conversion, renewable grid)."""
+        # Mock the input data
+        pct_fleet_converted = 0.50
+        existing_vehicle_emission_factor = 400.0
+        # Expected result: with E=0, A2 = B * ((1/I)*(1-H) - 1) =
+        # 0.5 * ((1/1.5)*0.54 - 1) = 0.5 * (0.36 - 1) = -0.32
+        expected_result = -0.32
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t30_use_cleaner_fuel_vehicles(
+            pct_fleet_converted,
+            existing_vehicle_emission_factor,
+            vehicle_type="PHEV",
+            bev_efficiency_kwh_per_mile=0.33,
+            electricity_carbon_intensity=0.0,
+            pct_phev_miles_electric=0.46,
+            hybrid_to_gasoline_mpg_ratio=1.5,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
+
+    def test_t30_use_cleaner_fuel_vehicles_wtw(self):
+        """Test the well-to-wheels mode of T-30."""
+        # Mock the input data (50% fleet, cleaner fuel 100 g/mi vs.
+        # conventional 400 g/mi well-to-wheels)
+        pct_fleet_converted = 0.50
+        existing_vehicle_emission_factor = 400.0  # unused in WTW
+        cleaner_fuel_wtw_emission_factor = 100.0
+        existing_vehicle_wtw_emission_factor = 400.0
+        # Expected result: 0.5 * (100 - 400) / 400 = -0.375
+        expected_result = -0.375
+
+        # Call the function under test
+        result = tdm_ghg.mitigations.t30_use_cleaner_fuel_vehicles(
+            pct_fleet_converted,
+            existing_vehicle_emission_factor,
+            vehicle_type="WTW",
+            cleaner_fuel_wtw_emission_factor=cleaner_fuel_wtw_emission_factor,
+            existing_vehicle_wtw_emission_factor=existing_vehicle_wtw_emission_factor,
+        )
+
+        # Assert that the result matches the expected output
+        assert isclose(result, expected_result, rel_tol=1e-2), (
+            f"Expected {expected_result}, but got {result}"
+        )
