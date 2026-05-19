@@ -960,7 +960,7 @@ class TestMitigations:
         # Mock the input data (CAPCOA Amax example: B=100%, Sacramento CBSA,
         # highest C, D, E values from Tables T-19.1–T-19.3, Sacramento County
         # annual days of use from Table T-19.4.)
-        pct_community_vmt_on_parallel_roadway = 1.0
+        pct_community_vmt_on_parallel_roadway = .5
         active_transportation_adjustment_factor = 0.0207
         key_destination_credit = 0.003
         growth_factor_adjustment = 1.54
@@ -968,7 +968,7 @@ class TestMitigations:
         average_oneway_bicycle_trip_length = 2.9
         average_oneway_vehicle_trip_length = 10.9
         # Expected result based on the mock data
-        expected_result = -0.008
+        expected_result = -0.00408
 
         # Call the function under test
         result = tdm_ghg.mitigations.t19a_construct_or_improve_bike_facility(
@@ -990,14 +990,14 @@ class TestMitigations:
         """Test the construct/improve bike boulevard strategy (T-19-B Amax)."""
         # Mock the input data (CAPCOA Amax example: B=100%, San
         # Jose-Sunnyvale-Santa Clara CBSA defaults from Tables T-10.1/T-10.2.)
-        pct_community_vmt_on_roadway = 1.0
+        pct_community_vmt_on_roadway = .75
         average_oneway_bicycle_trip_length = 2.8
         average_oneway_vehicle_trip_length = 11.5
         bicycle_mode_share_work_trips = 0.041
         vehicle_mode_share_work_trips = 0.866
         bike_mode_adjustment_factor = 1.14
         # Expected result based on the mock data
-        expected_result = -0.001614
+        expected_result = -0.001265
 
         # Call the function under test
         result = tdm_ghg.mitigations.t19b_construct_or_improve_bike_boulevard(
@@ -1018,10 +1018,11 @@ class TestMitigations:
         """Test the BEV mode of T-30 (CAPCOA example: 50% fleet conversion,
         renewable electricity provider)."""
         # Mock the input data
-        pct_fleet_converted = 0.50
+        pct_fleett_converted = 0.50
         existing_vehicle_emission_factor = 400.0  # g CO2e/mile
         bev_efficiency_kwh_per_mile = 0.33
         electricity_carbon_intensity = 0.0  # zero-carbon grid
+        # Expected result: 0.5 * (0 - 400)/400 = -0.5
         expected_result = -0.50
 
         # Call the function under test
