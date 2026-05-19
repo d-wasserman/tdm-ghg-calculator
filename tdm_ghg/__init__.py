@@ -126,6 +126,8 @@ from tdm_ghg.mitigations import (
     t16_unbundle_residential_parking_costs,
     t17_improve_street_connectivity,
     t18_provide_pedestrian_network_improvement,
+    t19a_construct_or_improve_bike_facility,
+    t19b_construct_or_improve_bike_boulevard,
     t20_expand_bikeway_network,
     t21a_implement_conventional_carshare,
     t21b_implement_electric_carshare,
@@ -143,6 +145,7 @@ from tdm_ghg.mitigations import (
     t46_provide_transit_shelters,
     t40_establish_school_bus_program,
     t56_active_modes_transportation_youth,
+    t30_use_cleaner_fuel_vehicles,
 )
 
 from tdm_ghg.subsectors import (
@@ -155,6 +158,7 @@ from tdm_ghg.subsectors import (
     run_transit,
     run_school_programs,
     run_parking_management,
+    run_clean_vehicles,
     run_multi_subsector,
 )
 
@@ -191,6 +195,8 @@ __all__ = [
     "t16_unbundle_residential_parking_costs",
     "t17_improve_street_connectivity",
     "t18_provide_pedestrian_network_improvement",
+    "t19a_construct_or_improve_bike_facility",
+    "t19b_construct_or_improve_bike_boulevard",
     "t20_expand_bikeway_network",
     "t21a_implement_conventional_carshare",
     "t21b_implement_electric_carshare",
@@ -208,6 +214,7 @@ __all__ = [
     "t46_provide_transit_shelters",
     "t40_establish_school_bus_program",
     "t56_active_modes_transportation_youth",
+    "t30_use_cleaner_fuel_vehicles",
     # Subsector orchestrators
     "run_subsector",
     "run_land_use",
@@ -216,6 +223,7 @@ __all__ = [
     "run_transit",
     "run_school_programs",
     "run_parking_management",
+    "run_clean_vehicles",
     "run_multi_subsector",
     # Constants
     "SUBSECTOR_CAPS",

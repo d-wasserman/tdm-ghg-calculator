@@ -65,6 +65,7 @@ SUBSECTOR_CAPS: dict[tuple, float] = {
     ("plan_community", "trip_reduction"):        0.023,
     ("plan_community", "parking_management"):    0.30,
     ("plan_community", "transit"):               0.15,
+    ("plan_community", "clean_vehicles"):        1.00,
 }
 
 # Cross-subsector cap applied to Land Use + Neighborhood Design + Parking + Transit.
@@ -198,6 +199,15 @@ def run_parking_management(context: TDMContext) -> float:
       - Plan/Community: T-24 (cap 30%)
     """
     return run_subsector(context, "parking_management")
+
+
+def run_clean_vehicles(context: TDMContext) -> float:
+    """Combined reduction for the Clean Vehicles and Fuels subsector.
+
+    Applicable measures (Plan/Community only, cap 100%):
+      T-30 (the only quantified measure in this subsector at any scale).
+    """
+    return run_subsector(context, "clean_vehicles")
 
 
 def run_multi_subsector(
