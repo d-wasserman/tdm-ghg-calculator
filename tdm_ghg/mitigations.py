@@ -2214,7 +2214,7 @@ def t40_establish_school_bus_program(
     a = (pct_students_who_begin_riding_bus
          * pct_students_served_by_bus
          * pct_new_riders_who_previously_drove
-         * (bus_ghg_per_student - car_ghg_per_student)
+         * (car_ghg_per_student - bus_ghg_per_student)
          / car_ghg_per_student)
     return max(a, -0.57)
 
