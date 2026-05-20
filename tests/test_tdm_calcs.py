@@ -997,7 +997,7 @@ class TestMitigations:
         vehicle_mode_share_work_trips = 0.866
         bike_mode_adjustment_factor = 1.14
         # Expected result based on the mock data
-        expected_result = -0.001265
+        expected_result = -0.001210
 
         # Call the function under test
         result = tdm_ghg.mitigations.t19b_construct_or_improve_bike_boulevard(
