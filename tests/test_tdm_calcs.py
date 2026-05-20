@@ -1018,7 +1018,7 @@ class TestMitigations:
         """Test the BEV mode of T-30 (CAPCOA example: 50% fleet conversion,
         renewable electricity provider)."""
         # Mock the input data
-        pct_fleett_converted = 0.50
+        pct_fleet_converted = 0.50
         existing_vehicle_emission_factor = 400.0  # g CO2e/mile
         bev_efficiency_kwh_per_mile = 0.33
         electricity_carbon_intensity = 0.0  # zero-carbon grid
