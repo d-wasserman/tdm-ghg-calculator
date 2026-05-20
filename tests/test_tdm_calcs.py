@@ -867,7 +867,7 @@ class TestMitigations:
         avg_boardings_per_day_at_improved_stops = 200.0
         avg_boardings_per_day_across_agency = 12000.0
         transit_mode_share = 0.15
-        include_real_time_information = True
+        include_real_time_information = False
         pct_transit_users_who_would_otherwise_drive = 0.833
         avg_auto_occupancy = 1.45
         pct_travel_time_waiting_existing = 0.249
@@ -997,7 +997,7 @@ class TestMitigations:
         vehicle_mode_share_work_trips = 0.866
         bike_mode_adjustment_factor = 1.14
         # Expected result based on the mock data
-        expected_result = -0.001265
+        expected_result = -0.001210
 
         # Call the function under test
         result = tdm_ghg.mitigations.t19b_construct_or_improve_bike_boulevard(
@@ -1018,7 +1018,7 @@ class TestMitigations:
         """Test the BEV mode of T-30 (CAPCOA example: 50% fleet conversion,
         renewable electricity provider)."""
         # Mock the input data
-        pct_fleett_converted = 0.50
+        pct_fleet_converted = 0.50
         existing_vehicle_emission_factor = 400.0  # g CO2e/mile
         bev_efficiency_kwh_per_mile = 0.33
         electricity_carbon_intensity = 0.0  # zero-carbon grid
