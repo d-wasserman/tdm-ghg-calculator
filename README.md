@@ -29,7 +29,7 @@ from tdm_ghg import TDMContext, Scale, LocationType, LandUseType
 from tdm_ghg import (
     run_land_use, run_trip_reduction, run_parking_management,
     run_neighborhood_design, run_transit, run_school_programs,
-    run_multi_subsector,
+    run_clean_vehicles, run_multi_subsector,
 )
 
 ctx = TDMContext(
@@ -127,6 +127,8 @@ All mitigation functions return a **decimal fraction** where **negative values r
 | ID | Function | Notes |
 |---|---|---|
 | T-18 | `t18_provide_pedestrian_network_improvement` | |
+| T-19-A | `t19a_construct_or_improve_bike_facility` | Class I, II, or IV bike facility |
+| T-19-B | `t19b_construct_or_improve_bike_boulevard` | Class III bike boulevard |
 | T-20 | `t20_expand_bikeway_network` | |
 | T-21-A | `t21a_implement_conventional_carshare` | |
 | T-21-B | `t21b_implement_electric_carshare` | |
@@ -157,6 +159,12 @@ All mitigation functions return a **decimal fraction** where **negative values r
 | T-28 | `t28_provide_bus_rapid_transit` | Excl. T-26, T-27, T-46 |
 | T-29 | `t29_reduce_transit_fares` | |
 | T-46 | `t46_provide_transit_shelters` | Excl. T-28 when BRT |
+
+### Clean Vehicles and Fuels (Plan/Community) -- cap 100%
+
+| ID | Function | Notes |
+|---|---|---|
+| T-30 | `t30_use_cleaner_fuel_vehicles` | BEV, PHEV, or well-to-wheels (WTW) modes |
 
 ### School Programs (Project/Site) -- cap 72% school VMT
 
