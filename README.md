@@ -1,6 +1,6 @@
 # tdm-ghg
 
-A Python library for calculating GHG emission reductions from Transportation Demand Management (TDM) measures, based on the CAPCOA 2024 [*Handbook for Analyzing GHG Emission Reductions, Assessing Climate Vulnerabilities, and Advancing Health and Equity*](https://www.airquality.org/ClimateChange/Documents/Handbook%20Public%20Draft/CAPCOA%20GHG%20Handbook%20-%20Public%20Draft.pdf) (transportation section).
+A Python library for calculating GHG emission reductions from Transportation Demand Management (TDM) measures, based on the CAPCOA 2024 [*Handbook for Analyzing GHG Emission Reductions, Assessing Climate Vulnerabilities, and Advancing Health and Equity*](https://www.airquality.org/ClimateChange/Documents/Final%20Handbook_AB434.pdf) (transportation section).
 
 Given a project's characteristics (density, location type, land use), `tdm-ghg` returns the expected percent reduction in vehicle miles traveled (VMT) and associated GHG emissions for each applicable CAPCOA mitigation measure and combines them using the handbook's multiplicative dampening rules and subsector caps.
 
