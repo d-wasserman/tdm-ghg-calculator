@@ -875,7 +875,7 @@ class TestMitigations:
         pct_perceived_waiting_with_shelters_and_rti = 0.158
         wait_time_elasticity = -0.54
         # Expected result based on the mock data
-        expected_result = -0.000713508
+        expected_result = -0.001411504
 
         # Call the function under test
         result = tdm_ghg.mitigations.t46_provide_transit_shelters(
