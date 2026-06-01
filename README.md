@@ -208,4 +208,4 @@ pytest --cov=tdm_ghg
 
 ## License
 
-Apache 2.0 -- see [LICENSE](LICENSE) for details.
+AGPL (GNU Affero General Public License) -- see [LICENSE](LICENSE) for details.
