@@ -3,7 +3,7 @@
 #          context metadata via @register_measure.
 # Author: David Wasserman
 # Copyright 2026 David J. Wasserman
-# License: Apache 2.0
+# License: AGPL-3.0-or-later
 
 # All functions return a decimal fraction where negative values represent
 # GHG reductions (e.g., -0.14 = 14% reduction). Positive values indicate
