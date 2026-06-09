@@ -175,13 +175,14 @@ All mitigation functions return a **decimal fraction** where **negative values r
 
 ## Combining Measures
 
-Within a subsector, individual reductions are combined using **multiplicative dampening** with a subsector-specific cap:
+Within a subsector, individual reductions are combined using **multiplicative dampening** with a subsector-specific cap. Because this library uses signed reductions (negative = reduction), each value `rᵢ` scales remaining VMT by `(1 + rᵢ)`:
 
 ```
-combined = min(cap, 1 - (1 - r1)(1 - r2)...(1 - rn))
+combined = ∏(1 + rᵢ) - 1          # signed form of CAPCOA's 1 - ∏(1 - |rᵢ|)
+combined = max(combined, -cap)    # one-sided floor on the reduction
 ```
 
-This prevents double-counting overlapping reductions and ensures results stay within documented CAPCOA limits.
+This prevents double-counting overlapping reductions and ensures results stay within documented CAPCOA limits. The cap bounds reductions only; a net increase is returned unchanged.
 
 ```python
 from tdm_ghg import multiplicative_dampening
