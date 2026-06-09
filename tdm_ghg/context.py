@@ -84,17 +84,22 @@ class TDMContext:
         (e.g., residential-only T-1) will be filtered out when the
         context land use does not match.
     params : dict[str, Any]
-        Flat dictionary mapping parameter names to values. Keys must
-        match the argument names of the measure functions in
-        mitigations.py exactly. Measures whose required parameters are
-        absent from this dict will be skipped by the orchestrators.
+        Dictionary mapping parameter names to values. Keys must match the
+        argument names of the measure functions in mitigations.py exactly.
+        Measures whose required parameters are absent are skipped by the
+        orchestrators. Entries keyed by a measure ID (e.g. ``"T-3"``) holding
+        a sub-dict are measure-scoped overrides — they apply only to that
+        measure and take precedence over flat (shared) values, which is the
+        way to disambiguate parameter-name collisions across measures.
 
     Notes
     -----
     Mutual exclusivity between measures (e.g., T-55 cannot be combined
-    with T-1 or T-3; T-28 excludes T-26/T-27/T-46) is not enforced
-    automatically. Use the ``excluded_measure_ids`` argument on subsector
-    orchestration functions to handle these constraints explicitly.
+    with T-1 or T-3; T-28 excludes T-26/T-27/T-46) is enforced by the
+    subsector orchestrators: activating conflicting measures together raises
+    ``MeasureExclusivityError``. Resolve via the ``excluded_measure_ids``
+    argument, or by scoping inputs to a single measure with measure-ID-keyed
+    params.
     """
     scale: Scale
     location_type: LocationType

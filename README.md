@@ -200,6 +200,24 @@ combined = multiplicative_dampening([-0.10, -0.08, -0.05], max_reduction_percent
   - **Trip Reduction**: T-5 (voluntary) and T-6 (mandatory) each exclude T-7 through T-11; T-12 and T-13 are mutually exclusive.
   - **Transit**: T-28 (BRT) excludes T-26, T-27, and T-46. The `run_transit(use_brt=True)` orchestrator handles this automatically.
 
+  Exclusivity is **enforced**: if mutually exclusive measures are activated together, the orchestrator raises `MeasureExclusivityError` rather than silently combining them. Resolve by passing `excluded_measure_ids` to select one per conflict, or by scoping inputs per measure (below).
+
+## Parameter Resolution
+
+`TDMContext.params` is matched to each measure's function arguments by name. Because the same name can apply to several measures, you can provide values two ways:
+
+- **Flat (shared)** — a top-level entry applies to every measure whose signature accepts it. Convenient, but a single name (e.g. `pct_employees_eligible`) can activate several measures at once, and a name like `transit_mode_share` means different things to different measures.
+- **Measure-scoped** — an entry keyed by a measure ID holds a sub-dict that applies only to that measure, overriding flat values. Use it to disambiguate collisions or to scope which measures run.
+
+```python
+params = {
+    "transit_mode_share": 0.02,                 # flat default for measures that accept it
+    "T-3": {"transit_mode_share": 0.10,         # T-3 gets its own (city-wide) value
+            "vehicle_mode_share": 0.80},
+    "T-6": {"pct_employees_eligible": 1.0},     # activate ONLY T-6 in trip reduction
+}
+```
+
 ## Testing
 
 ```bash

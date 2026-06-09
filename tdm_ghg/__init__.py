@@ -103,7 +103,7 @@ Utilities
 # Context and registry — import order matters: context first, then registry,
 # then mitigations (which registers functions at import time).
 from tdm_ghg.context import LandUseType, LocationType, Scale, TDMContext
-from tdm_ghg.registry import registry
+from tdm_ghg.registry import MeasureExclusivityError, registry
 
 # Importing mitigations registers all @register_measure functions.
 from tdm_ghg.mitigations import (
@@ -175,6 +175,7 @@ __all__ = [
     "TDMContext",
     # Registry
     "registry",
+    "MeasureExclusivityError",
     # Individual measure functions
     "t1_increase_residential_density",
     "t2_increase_job_density",
