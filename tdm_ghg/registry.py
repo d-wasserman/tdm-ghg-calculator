@@ -43,6 +43,31 @@ from typing import Any, Callable, Collection, Optional
 from tdm_ghg.context import LandUseType, LocationType, Scale, TDMContext
 
 
+class MeasureExclusivityError(ValueError):
+    """Raised when mutually exclusive measures are activated together.
+
+    CAPCOA requires selecting at most one measure from each mutually
+    exclusive group (e.g. T-5 voluntary vs. T-6 mandatory commute trip
+    reduction). The subsector orchestrators raise this rather than silently
+    combining conflicting measures, which would overstate the reduction.
+    Resolve by excluding all but one measure via ``excluded_measure_ids``, or
+    by scoping inputs per measure with measure-ID-keyed params.
+    """
+
+
+class MeasureSelectionError(ValueError):
+    """Raised when an explicit ``TDMContext.measures`` selection is invalid.
+
+    With an explicit selection, problems that would otherwise cause a
+    measure to be silently skipped fail loudly instead: unknown measure
+    IDs, selected measures that are inapplicable to the context (scale,
+    location type, or land use type), selected measures excluded by the
+    orchestrator (``excluded_measure_ids`` or ``use_brt`` logic), and
+    selected measures whose required parameters are missing from
+    ``TDMContext.params``.
+    """
+
+
 @dataclass
 class MeasureMetadata:
     """Metadata describing a single CAPCOA TDM measure.
@@ -147,33 +172,75 @@ class MeasureRegistry:
         meta: MeasureMetadata,
         params: dict[str, Any],
     ) -> Optional[float]:
-        """Call a measure function using matching values from ``params``.
+        """Call a measure function, resolving each argument from ``params``.
 
-        Uses ``inspect`` to match params dict keys to function argument
-        names. Returns ``None`` if any required (no-default) argument is
-        missing from ``params``, allowing the orchestrator to skip that
-        measure gracefully.
+        Parameter resolution uses ``inspect`` to match keys to function
+        argument names, with two layers (most specific wins):
+
+        1. **Measure-scoped overrides** — a ``params`` entry keyed by this
+           measure's ID (e.g. ``params["T-9"]``) holding a sub-dict. Values
+           there apply only to this measure. Use this to disambiguate
+           parameter-name collisions, where a single name (e.g.
+           ``transit_mode_share``) means different things to different
+           measures, or to scope activation to a specific measure.
+        2. **Flat (shared) params** — top-level ``params`` entries, applied to
+           every measure whose signature accepts that name.
+
+        Returns ``None`` if any required (no-default) argument is unresolved,
+        allowing the orchestrator to skip that measure gracefully. A measure
+        can therefore be activated by flat params, by a measure-scoped
+        sub-dict, or by a combination of the two.
 
         Parameters
         ----------
         meta : MeasureMetadata
             Measure to call.
         params : dict[str, Any]
-            Flat parameter dictionary (typically ``TDMContext.params``).
+            Parameter dictionary (typically ``TDMContext.params``). May mix
+            flat parameter entries with measure-ID-keyed override sub-dicts.
 
         Returns
         -------
         float or None
             The GHG reduction fraction, or None if required params are absent.
         """
+        kwargs, missing = self._resolve_kwargs(meta, params)
+        if missing:
+            return None  # required param(s) missing — skip this measure
+        return meta.func(**kwargs)
+
+    def missing_params(
+        self,
+        meta: MeasureMetadata,
+        params: dict[str, Any],
+    ) -> list[str]:
+        """Return required argument names of ``meta`` unresolved by ``params``.
+
+        Resolution follows the same two layers as ``call_measure``
+        (measure-scoped overrides, then flat params). An empty list means
+        the measure can be called.
+        """
+        return self._resolve_kwargs(meta, params)[1]
+
+    def _resolve_kwargs(
+        self,
+        meta: MeasureMetadata,
+        params: dict[str, Any],
+    ) -> tuple[dict[str, Any], list[str]]:
+        """Resolve call kwargs for ``meta`` and list unresolved required args."""
+        scoped = params.get(meta.measure_id)
+        overrides = scoped if isinstance(scoped, dict) else {}
         sig = inspect.signature(meta.func)
         kwargs: dict[str, Any] = {}
+        missing: list[str] = []
         for name, param in sig.parameters.items():
-            if name in params:
+            if name in overrides:
+                kwargs[name] = overrides[name]
+            elif name in params:
                 kwargs[name] = params[name]
             elif param.default is inspect.Parameter.empty:
-                return None  # required param missing — skip this measure
-        return meta.func(**kwargs)
+                missing.append(name)
+        return kwargs, missing
 
 
 # Module-level singleton — populated when mitigations.py is imported.

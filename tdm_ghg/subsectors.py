@@ -21,9 +21,13 @@ in the provided ``TDMContext``, calls each with matching parameters from
 ``context.params``, then combines results with multiplicative dampening
 capped at the CAPCOA subsector maximum.
 
-Measures whose required parameters are absent from ``context.params`` are
-silently skipped. Mutual exclusivity (e.g., T-28 vs. T-26/T-27/T-46) is
-handled via the ``excluded_measure_ids`` argument.
+Declare the strategies in use with ``TDMContext.measures`` (explicit mode:
+only those measures run and selection problems raise
+``MeasureSelectionError``), or leave it ``None`` to auto-activate measures
+whose required parameters are present in ``context.params`` (legacy mode;
+absent-parameter measures are silently skipped). Mutual exclusivity (e.g.,
+T-28 vs. T-26/T-27/T-46) is enforced via ``MeasureExclusivityError`` and
+resolved with the ``excluded_measure_ids`` argument.
 
 Subsector caps by scale (from CAPCOA 2024 Table, Transportation section):
 
@@ -48,7 +52,12 @@ from __future__ import annotations
 from typing import Collection
 
 from tdm_ghg.context import TDMContext
-from tdm_ghg.registry import registry
+from tdm_ghg.registry import (
+    MeasureExclusivityError,
+    MeasureMetadata,
+    MeasureSelectionError,
+    registry,
+)
 from tdm_ghg.utils import multiplicative_dampening
 
 # Subsector caps as positive fractions. Negated when passed to
@@ -84,6 +93,18 @@ def run_subsector(
     ``subsector``, calls each with matching parameters, then applies
     multiplicative dampening with the CAPCOA subsector cap.
 
+    Measure activation has two modes, controlled by ``context.measures``:
+
+    - **Explicit** (``context.measures`` is a list of measure IDs): only the
+      declared measures run, drawing values from shared and measure-scoped
+      ``context.params``. Selection problems raise ``MeasureSelectionError``
+      (unknown ID, inapplicable to context, excluded by the orchestrator, or
+      missing required parameters). Declared IDs belonging to other
+      subsectors are ignored by this call.
+    - **Auto** (``context.measures`` is ``None``): measures whose required
+      parameters are present in ``context.params`` activate automatically;
+      others are silently skipped (legacy behavior).
+
     Parameters
     ----------
     context : TDMContext
@@ -105,17 +126,116 @@ def run_subsector(
     subsector_cap = SUBSECTOR_CAPS.get(cap_key)
 
     measures = registry.filter(context, subsector=subsector, excluded_ids=excluded_measure_ids)
+    explicit = context.measures is not None
+    if explicit:
+        measures = _validate_selection(
+            context, subsector, measures, excluded_measure_ids
+        )
+
+    activated: list[MeasureMetadata] = []
     reductions = []
     for meta in measures:
+        if explicit:
+            missing = registry.missing_params(meta, context.params)
+            if missing:
+                raise MeasureSelectionError(
+                    f"Selected measure {meta.measure_id} is missing required "
+                    f"parameter(s): {sorted(missing)}. Provide them as flat "
+                    f"entries in TDMContext.params or in a "
+                    f"params[{meta.measure_id!r}] sub-dict."
+                )
         result = registry.call_measure(meta, context.params)
         if result is not None:
+            activated.append(meta)
             reductions.append(result)
+
+    conflicts = _find_exclusivity_conflicts(activated)
+    if conflicts:
+        raise MeasureExclusivityError(_format_conflicts(subsector, conflicts))
 
     cap_arg = -subsector_cap if subsector_cap is not None else None
     return multiplicative_dampening(reductions, cap_arg)
 
 
-def run_land_use(context: TDMContext) -> float:
+def _validate_selection(
+    context: TDMContext,
+    subsector: str,
+    applicable: list[MeasureMetadata],
+    excluded_measure_ids: Collection[str],
+) -> list[MeasureMetadata]:
+    """Narrow ``applicable`` to the explicit selection, failing loudly.
+
+    Selected IDs belonging to other subsectors are ignored here (they are
+    handled when their own subsector runs). Within this subsector, raise
+    ``MeasureSelectionError`` for unknown IDs, selections conflicting with
+    orchestrator exclusions, and selections that are inapplicable to the
+    context.
+    """
+    selected = set(context.measures)
+    unknown = selected - set(registry.measures)
+    if unknown:
+        raise MeasureSelectionError(
+            f"Unknown measure ID(s) in TDMContext.measures: {sorted(unknown)}. "
+            f"Valid IDs are registered CAPCOA measure IDs such as 'T-1'."
+        )
+
+    relevant = {
+        measure_id for measure_id in selected
+        if registry.get(measure_id).subsector == subsector
+    }
+    excluded_conflict = relevant & set(excluded_measure_ids)
+    if excluded_conflict:
+        raise MeasureSelectionError(
+            f"Selected measure(s) {sorted(excluded_conflict)} are excluded in "
+            f"subsector '{subsector}' (via excluded_measure_ids or orchestrator "
+            f"logic such as run_transit's use_brt flag). Remove them from the "
+            f"selection or change the orchestrator arguments."
+        )
+
+    applicable_ids = {meta.measure_id for meta in applicable}
+    inapplicable = relevant - applicable_ids
+    if inapplicable:
+        raise MeasureSelectionError(
+            f"Selected measure(s) {sorted(inapplicable)} are not applicable to "
+            f"this context in subsector '{subsector}': check the context scale, "
+            f"location type, and land use type against the measure's metadata."
+        )
+
+    return [meta for meta in applicable if meta.measure_id in relevant]
+
+
+def _find_exclusivity_conflicts(
+    activated: Collection[MeasureMetadata],
+) -> set[frozenset]:
+    """Return the set of mutually exclusive measure pairs among ``activated``.
+
+    Each conflict is a ``frozenset`` of two measure IDs, so a symmetric or
+    one-directional ``mutually_exclusive_with`` declaration yields a single
+    entry regardless of declaration direction.
+    """
+    active_ids = {meta.measure_id for meta in activated}
+    conflicts: set[frozenset] = set()
+    for meta in activated:
+        for other in meta.mutually_exclusive_with & active_ids:
+            conflicts.add(frozenset((meta.measure_id, other)))
+    return conflicts
+
+
+def _format_conflicts(subsector: str, conflicts: Collection[frozenset]) -> str:
+    pairs = ", ".join(sorted(" + ".join(sorted(pair)) for pair in conflicts))
+    return (
+        f"Mutually exclusive measures were activated together in subsector "
+        f"'{subsector}': {pairs}. CAPCOA requires selecting one measure per "
+        f"conflict. Resolve by excluding all but one via excluded_measure_ids, "
+        f"or scope inputs per measure using measure-ID-keyed params "
+        f"(e.g. params={{'T-6': {{...}}}})."
+    )
+
+
+def run_land_use(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the Land Use subsector.
 
     Applicable measures (by context):
@@ -125,21 +245,30 @@ def run_land_use(context: TDMContext) -> float:
     Notes
     -----
     T-55 is mutually exclusive with T-1 and T-3. When using T-55, pass
-    ``excluded_measure_ids={"T-1","T-3"}`` to ``run_subsector`` directly.
+    ``excluded_measure_ids={"T-1","T-3"}`` (or scope params per measure) to
+    avoid a ``MeasureExclusivityError``.
     """
-    return run_subsector(context, "land_use")
+    return run_subsector(context, "land_use", excluded_measure_ids=excluded_measure_ids)
 
 
-def run_neighborhood_design(context: TDMContext) -> float:
+def run_neighborhood_design(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the Neighborhood Design subsector.
 
     Applicable measures (Plan/Community only, cap 10%):
-      T-18, T-20, T-21-A, T-21-B, T-22-A, T-22-B, T-22-C, T-22-D
+      T-18, T-19-A, T-19-B, T-20, T-21-A, T-21-B, T-22-A, T-22-B, T-22-C, T-22-D
     """
-    return run_subsector(context, "neighborhood_design")
+    return run_subsector(
+        context, "neighborhood_design", excluded_measure_ids=excluded_measure_ids
+    )
 
 
-def run_trip_reduction(context: TDMContext) -> float:
+def run_trip_reduction(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the Trip Reduction Programs subsector.
 
     Applicable measures:
@@ -151,13 +280,20 @@ def run_trip_reduction(context: TDMContext) -> float:
     T-5 and T-6 are mutually exclusive (select one). T-5 or T-6 also
     bundle T-7 through T-11, so they cannot be combined with those measures.
     T-12 and T-13 are mutually exclusive (select one parking pricing approach).
+    Because many of these measures share the ``pct_employees_eligible``
+    parameter, supplying it as a flat param activates several at once and
+    raises ``MeasureExclusivityError``. Pass ``excluded_measure_ids`` to
+    select one per conflict, or scope inputs with measure-ID-keyed params.
     """
-    return run_subsector(context, "trip_reduction")
+    return run_subsector(
+        context, "trip_reduction", excluded_measure_ids=excluded_measure_ids
+    )
 
 
 def run_transit(
     context: TDMContext,
     use_brt: bool = False,
+    excluded_measure_ids: Collection[str] = (),
 ) -> float:
     """Combined reduction for the Transit subsector (Plan/Community, cap 15%).
 
@@ -169,6 +305,9 @@ def run_transit(
         If True, use T-28 (Bus Rapid Transit) and exclude T-26, T-27, T-46,
         which are mutually exclusive with BRT when it covers all routes.
         If False (default), use T-26, T-27, T-46 and exclude T-28.
+    excluded_measure_ids : collection of str, optional
+        Additional measure IDs to exclude, merged with the BRT-driven
+        exclusions above.
 
     Returns
     -------
@@ -179,36 +318,52 @@ def run_transit(
         excluded = {"T-26", "T-27", "T-46"}
     else:
         excluded = {"T-28"}
+    excluded |= set(excluded_measure_ids)
     return run_subsector(context, "transit", excluded_measure_ids=excluded)
 
 
 
-def run_school_programs(context: TDMContext) -> float:
+def run_school_programs(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the School Programs subsector.
 
     Applicable measures (Project/Site, SCHOOL land use, cap 72% school VMT):
       T-40, T-56
     """
-    return run_subsector(context, "school_programs")
+    return run_subsector(
+        context, "school_programs", excluded_measure_ids=excluded_measure_ids
+    )
 
 
-def run_parking_management(context: TDMContext) -> float:
+def run_parking_management(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the Parking or Road Pricing/Management subsector.
 
     Applicable measures:
       - Project/Site: T-14, T-15, T-16 (cap 35%)
       - Plan/Community: T-24 (cap 30%)
     """
-    return run_subsector(context, "parking_management")
+    return run_subsector(
+        context, "parking_management", excluded_measure_ids=excluded_measure_ids
+    )
 
 
-def run_clean_vehicles(context: TDMContext) -> float:
+def run_clean_vehicles(
+    context: TDMContext,
+    excluded_measure_ids: Collection[str] = (),
+) -> float:
     """Combined reduction for the Clean Vehicles and Fuels subsector.
 
     Applicable measures (Plan/Community only, cap 100%):
       T-30 (the only quantified measure in this subsector at any scale).
     """
-    return run_subsector(context, "clean_vehicles")
+    return run_subsector(
+        context, "clean_vehicles", excluded_measure_ids=excluded_measure_ids
+    )
 
 
 def run_multi_subsector(

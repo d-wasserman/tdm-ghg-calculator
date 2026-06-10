@@ -34,7 +34,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any
+from typing import Any, Collection, Optional
 
 
 class Scale(str, Enum):
@@ -85,19 +85,37 @@ class TDMContext:
         (e.g., residential-only T-1) will be filtered out when the
         context land use does not match.
     params : dict[str, Any]
-        Flat dictionary mapping parameter names to values. Keys must
-        match the argument names of the measure functions in
-        mitigations.py exactly. Measures whose required parameters are
-        absent from this dict will be skipped by the orchestrators.
+        Dictionary mapping parameter names to values. Keys must match the
+        argument names of the measure functions in mitigations.py exactly.
+        Flat entries are shared: they apply to every selected/activated
+        measure whose signature accepts that name. Entries keyed by a
+        measure ID (e.g. ``"T-3"``) holding a sub-dict are measure-scoped
+        overrides — they apply only to that measure and take precedence over
+        flat (shared) values, which is the way to disambiguate
+        parameter-name collisions across measures.
+    measures : collection of str, optional
+        Explicit declaration of the measure IDs (strategies) used in this
+        analysis, e.g. ``["T-1", "T-4", "T-17"]``. When provided, the
+        orchestrators run **only** these measures, drawing values from
+        shared and scoped ``params`` as usual, and selection problems raise
+        ``MeasureSelectionError`` instead of being silently skipped:
+        unknown IDs, measures inapplicable to this context (scale, location,
+        or land use), measures excluded by the orchestrator, and selected
+        measures missing required parameters all fail loudly. When ``None``
+        (default), measures auto-activate from parameter presence (legacy
+        behavior). An empty list runs nothing.
 
     Notes
     -----
     Mutual exclusivity between measures (e.g., T-55 cannot be combined
-    with T-1 or T-3; T-28 excludes T-26/T-27/T-46) is not enforced
-    automatically. Use the ``excluded_measure_ids`` argument on subsector
-    orchestration functions to handle these constraints explicitly.
+    with T-1 or T-3; T-28 excludes T-26/T-27/T-46) is enforced by the
+    subsector orchestrators: activating conflicting measures together raises
+    ``MeasureExclusivityError``. Resolve via the ``excluded_measure_ids``
+    argument, by declaring a conflict-free ``measures`` list, or by scoping
+    inputs to a single measure with measure-ID-keyed params.
     """
     scale: Scale
     location_type: LocationType
     land_use_type: LandUseType
     params: dict[str, Any] = field(default_factory=dict)
+    measures: Optional[Collection[str]] = None
