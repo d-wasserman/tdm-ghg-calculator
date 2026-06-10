@@ -21,9 +21,13 @@ in the provided ``TDMContext``, calls each with matching parameters from
 ``context.params``, then combines results with multiplicative dampening
 capped at the CAPCOA subsector maximum.
 
-Measures whose required parameters are absent from ``context.params`` are
-silently skipped. Mutual exclusivity (e.g., T-28 vs. T-26/T-27/T-46) is
-handled via the ``excluded_measure_ids`` argument.
+Declare the strategies in use with ``TDMContext.measures`` (explicit mode:
+only those measures run and selection problems raise
+``MeasureSelectionError``), or leave it ``None`` to auto-activate measures
+whose required parameters are present in ``context.params`` (legacy mode;
+absent-parameter measures are silently skipped). Mutual exclusivity (e.g.,
+T-28 vs. T-26/T-27/T-46) is enforced via ``MeasureExclusivityError`` and
+resolved with the ``excluded_measure_ids`` argument.
 
 Subsector caps by scale (from CAPCOA 2024 Table, Transportation section):
 
@@ -48,7 +52,12 @@ from __future__ import annotations
 from typing import Collection
 
 from tdm_ghg.context import TDMContext
-from tdm_ghg.registry import MeasureExclusivityError, MeasureMetadata, registry
+from tdm_ghg.registry import (
+    MeasureExclusivityError,
+    MeasureMetadata,
+    MeasureSelectionError,
+    registry,
+)
 from tdm_ghg.utils import multiplicative_dampening
 
 # Subsector caps as positive fractions. Negated when passed to
@@ -84,6 +93,18 @@ def run_subsector(
     ``subsector``, calls each with matching parameters, then applies
     multiplicative dampening with the CAPCOA subsector cap.
 
+    Measure activation has two modes, controlled by ``context.measures``:
+
+    - **Explicit** (``context.measures`` is a list of measure IDs): only the
+      declared measures run, drawing values from shared and measure-scoped
+      ``context.params``. Selection problems raise ``MeasureSelectionError``
+      (unknown ID, inapplicable to context, excluded by the orchestrator, or
+      missing required parameters). Declared IDs belonging to other
+      subsectors are ignored by this call.
+    - **Auto** (``context.measures`` is ``None``): measures whose required
+      parameters are present in ``context.params`` activate automatically;
+      others are silently skipped (legacy behavior).
+
     Parameters
     ----------
     context : TDMContext
@@ -105,9 +126,24 @@ def run_subsector(
     subsector_cap = SUBSECTOR_CAPS.get(cap_key)
 
     measures = registry.filter(context, subsector=subsector, excluded_ids=excluded_measure_ids)
+    explicit = context.measures is not None
+    if explicit:
+        measures = _validate_selection(
+            context, subsector, measures, excluded_measure_ids
+        )
+
     activated: list[MeasureMetadata] = []
     reductions = []
     for meta in measures:
+        if explicit:
+            missing = registry.missing_params(meta, context.params)
+            if missing:
+                raise MeasureSelectionError(
+                    f"Selected measure {meta.measure_id} is missing required "
+                    f"parameter(s): {sorted(missing)}. Provide them as flat "
+                    f"entries in TDMContext.params or in a "
+                    f"params[{meta.measure_id!r}] sub-dict."
+                )
         result = registry.call_measure(meta, context.params)
         if result is not None:
             activated.append(meta)
@@ -119,6 +155,53 @@ def run_subsector(
 
     cap_arg = -subsector_cap if subsector_cap is not None else None
     return multiplicative_dampening(reductions, cap_arg)
+
+
+def _validate_selection(
+    context: TDMContext,
+    subsector: str,
+    applicable: list[MeasureMetadata],
+    excluded_measure_ids: Collection[str],
+) -> list[MeasureMetadata]:
+    """Narrow ``applicable`` to the explicit selection, failing loudly.
+
+    Selected IDs belonging to other subsectors are ignored here (they are
+    handled when their own subsector runs). Within this subsector, raise
+    ``MeasureSelectionError`` for unknown IDs, selections conflicting with
+    orchestrator exclusions, and selections that are inapplicable to the
+    context.
+    """
+    selected = set(context.measures)
+    unknown = selected - set(registry.measures)
+    if unknown:
+        raise MeasureSelectionError(
+            f"Unknown measure ID(s) in TDMContext.measures: {sorted(unknown)}. "
+            f"Valid IDs are registered CAPCOA measure IDs such as 'T-1'."
+        )
+
+    relevant = {
+        measure_id for measure_id in selected
+        if registry.get(measure_id).subsector == subsector
+    }
+    excluded_conflict = relevant & set(excluded_measure_ids)
+    if excluded_conflict:
+        raise MeasureSelectionError(
+            f"Selected measure(s) {sorted(excluded_conflict)} are excluded in "
+            f"subsector '{subsector}' (via excluded_measure_ids or orchestrator "
+            f"logic such as run_transit's use_brt flag). Remove them from the "
+            f"selection or change the orchestrator arguments."
+        )
+
+    applicable_ids = {meta.measure_id for meta in applicable}
+    inapplicable = relevant - applicable_ids
+    if inapplicable:
+        raise MeasureSelectionError(
+            f"Selected measure(s) {sorted(inapplicable)} are not applicable to "
+            f"this context in subsector '{subsector}': check the context scale, "
+            f"location type, and land use type against the measure's metadata."
+        )
+
+    return [meta for meta in applicable if meta.measure_id in relevant]
 
 
 def _find_exclusivity_conflicts(

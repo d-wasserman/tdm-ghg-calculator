@@ -55,6 +55,19 @@ class MeasureExclusivityError(ValueError):
     """
 
 
+class MeasureSelectionError(ValueError):
+    """Raised when an explicit ``TDMContext.measures`` selection is invalid.
+
+    With an explicit selection, problems that would otherwise cause a
+    measure to be silently skipped fail loudly instead: unknown measure
+    IDs, selected measures that are inapplicable to the context (scale,
+    location type, or land use type), selected measures excluded by the
+    orchestrator (``excluded_measure_ids`` or ``use_brt`` logic), and
+    selected measures whose required parameters are missing from
+    ``TDMContext.params``.
+    """
+
+
 @dataclass
 class MeasureMetadata:
     """Metadata describing a single CAPCOA TDM measure.
@@ -191,18 +204,43 @@ class MeasureRegistry:
         float or None
             The GHG reduction fraction, or None if required params are absent.
         """
+        kwargs, missing = self._resolve_kwargs(meta, params)
+        if missing:
+            return None  # required param(s) missing — skip this measure
+        return meta.func(**kwargs)
+
+    def missing_params(
+        self,
+        meta: MeasureMetadata,
+        params: dict[str, Any],
+    ) -> list[str]:
+        """Return required argument names of ``meta`` unresolved by ``params``.
+
+        Resolution follows the same two layers as ``call_measure``
+        (measure-scoped overrides, then flat params). An empty list means
+        the measure can be called.
+        """
+        return self._resolve_kwargs(meta, params)[1]
+
+    def _resolve_kwargs(
+        self,
+        meta: MeasureMetadata,
+        params: dict[str, Any],
+    ) -> tuple[dict[str, Any], list[str]]:
+        """Resolve call kwargs for ``meta`` and list unresolved required args."""
         scoped = params.get(meta.measure_id)
         overrides = scoped if isinstance(scoped, dict) else {}
         sig = inspect.signature(meta.func)
         kwargs: dict[str, Any] = {}
+        missing: list[str] = []
         for name, param in sig.parameters.items():
             if name in overrides:
                 kwargs[name] = overrides[name]
             elif name in params:
                 kwargs[name] = params[name]
             elif param.default is inspect.Parameter.empty:
-                return None  # required param missing — skip this measure
-        return meta.func(**kwargs)
+                missing.append(name)
+        return kwargs, missing
 
 
 # Module-level singleton — populated when mitigations.py is imported.

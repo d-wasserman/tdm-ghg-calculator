@@ -202,20 +202,39 @@ combined = multiplicative_dampening([-0.10, -0.08, -0.05], max_reduction_percent
 
   Exclusivity is **enforced**: if mutually exclusive measures are activated together, the orchestrator raises `MeasureExclusivityError` rather than silently combining them. Resolve by passing `excluded_measure_ids` to select one per conflict, or by scoping inputs per measure (below).
 
-## Parameter Resolution
+## Declaring Strategies and Parameter Resolution
 
-`TDMContext.params` is matched to each measure's function arguments by name. Because the same name can apply to several measures, you can provide values two ways:
+**Declare the strategies in use** with `TDMContext.measures` (recommended). Only the declared measures run, shared params feed all of them, and selection problems fail loudly with `MeasureSelectionError` (unknown ID, measure inapplicable to the context, measure excluded by the orchestrator, or missing required parameters):
 
-- **Flat (shared)** — a top-level entry applies to every measure whose signature accepts it. Convenient, but a single name (e.g. `pct_employees_eligible`) can activate several measures at once, and a name like `transit_mode_share` means different things to different measures.
-- **Measure-scoped** — an entry keyed by a measure ID holds a sub-dict that applies only to that measure, overriding flat values. Use it to disambiguate collisions or to scope which measures run.
+```python
+ctx = TDMContext(
+    scale=Scale.PROJECT_SITE,
+    location_type=LocationType.URBAN,
+    land_use_type=LandUseType.RESIDENTIAL,
+    measures=["T-1", "T-3", "T-6"],             # explicit strategy declaration
+    params={
+        "proposed_residential_density": 20.0,   # shared where applicable
+        "transit_mode_share": 0.05,
+        "vehicle_mode_share": 0.80,
+        "pct_employees_eligible": 1.0,
+    },
+)
+```
+
+When `measures` is `None` (default), measures auto-activate whenever their required parameters are present in `params` — convenient, but a shared name (e.g. `pct_employees_eligible`) can activate several measures at once, so the explicit declaration is preferred.
+
+`TDMContext.params` is matched to each measure's function arguments by name, with two layers:
+
+- **Flat (shared)** — a top-level entry applies to every selected measure whose signature accepts it. Ideal for regional context (mode shares, trip lengths, emission factors) that must stay consistent across measures.
+- **Measure-scoped** — an entry keyed by a measure ID holds a sub-dict that applies only to that measure, overriding flat values. Use it when the same name means different things to different measures (e.g. `transit_mode_share` in T-3 vs. T-9).
 
 ```python
 params = {
     "transit_mode_share": 0.02,                 # flat default for measures that accept it
     "T-3": {"transit_mode_share": 0.10,         # T-3 gets its own (city-wide) value
             "vehicle_mode_share": 0.80},
-    "T-6": {"pct_employees_eligible": 1.0},     # activate ONLY T-6 in trip reduction
-}
+    "T-6": {"pct_employees_eligible": 1.0},     # scope a value (and, in auto mode,
+}                                               # activation) to T-6 only
 ```
 
 ## Testing
