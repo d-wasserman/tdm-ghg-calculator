@@ -9,7 +9,7 @@ description = "GHG reduction calculator for transportation demand management mea
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "David Wasserman" }]
-requires-python = ">=3.6"
+requires-python = ">=3.9"
 dependencies = [
     "pandas>=1.0",
 ]
