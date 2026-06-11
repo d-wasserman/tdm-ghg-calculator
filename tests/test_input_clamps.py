@@ -16,12 +16,12 @@
 # --------------------------------
 """Tests for CAPCOA documented input maxima and packaging hygiene.
 
-The handbook documents per-input maxima for several measures. Some were
-already clamped in-formula (T-26/T-28 frequency at 3.0, T-29 fare at 0.5,
-T-12 price ratio at 0.5, T-16 cost at $3,600); T-11 (Bmax = 0.15
-participation) and T-14 (Dmax = 7 PHEVs/charger/day) were documented but
-unenforced, letting out-of-range inputs overstate reductions up to the
-measure cap. These tests pin the clamps and related default-value hygiene.
+The handbook documents per-input maxima for several measures, enforced
+in-formula: T-26/T-28 clamp the frequency increase at 3.0, T-29 the fare
+reduction at 0.5, T-12 the price ratio at 0.5, T-16 the annual cost at
+$3,600, T-11 participation at 0.15 (Bmax), and T-14 charger utilisation at
+7 PHEVs/charger/day (Dmax). These tests pin the T-11 and T-14 clamps and
+related default-value hygiene.
 """
 
 import inspect
