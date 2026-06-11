@@ -590,7 +590,8 @@ def t11_provide_employer_sponsored_vanpool(
     ----------
     pct_employees_vanpooling : float
         Percent of employees participating in the vanpool (as a decimal,
-        e.g., 0.15 for 15%). Bmax = 0.15 per U.S. vanpool participation data.
+        e.g., 0.15 for 15%). Clamped at 0.15 (Bmax) in the formula per
+        U.S. vanpool participation data.
     avg_vehicle_commute_trip_length : float
         Average one-way vehicle commute trip length in the region [miles].
         From FHWA 2017 NHTS Table T-11.1 by CBSA (e.g., 14.52 mi, San Diego).
@@ -614,12 +615,13 @@ def t11_provide_employer_sponsored_vanpool(
         (as a decimal). Capped at -0.204 (-20.4%). Negative values indicate
         reductions.
     """
-    solo = (1 - pct_employees_vanpooling) * avg_vehicle_commute_trip_length
+    b = min(pct_employees_vanpooling, 0.15)
+    solo = (1 - b) * avg_vehicle_commute_trip_length
     without_emissions = (solo * avg_employee_vehicle_emission_factor
-                         + pct_employees_vanpooling * avg_vanpool_trip_length
+                         + b * avg_vanpool_trip_length
                          * avg_employee_vehicle_emission_factor)
     with_emissions = (solo * avg_employee_vehicle_emission_factor
-                      + pct_employees_vanpooling
+                      + b
                       * (avg_vanpool_trip_length / avg_vanpool_occupancy)
                       * vanpool_emission_factor)
     a = (with_emissions / without_emissions) - 1
@@ -761,8 +763,9 @@ def t14_provide_ev_charging_infrastructure(
     total_vehicles_per_day : int
         Total vehicles accessing the site per day.
     avg_phevs_served_per_charger_per_day : int, optional
-        Average number of PHEVs served per charger per day. Default is 2
-        (Dmax = 7; CARB 2021 PHEV utilisation data).
+        Average number of PHEVs served per charger per day. Default is 2.
+        Clamped at 7 (Dmax) in the formula per CARB 2021 PHEV utilisation
+        data.
     pct_phev_miles_electric_without_measure : float, optional
         Percent of PHEV miles driven in electric mode without chargers (decimal).
         Default is 0.46 (46%), per CARB 2020 PHEV usage study.
@@ -793,10 +796,11 @@ def t14_provide_ev_charging_infrastructure(
     # Electricity emission equivalent [g CO2e/mile in electric mode]
     lb_to_g = 454 # Constant conversion factor
     kw_to_mw = .001 # Constant conversion factor
+    d = min(avg_phevs_served_per_charger_per_day, 7)
     electricity_emission_rate = (ev_energy_efficiency_kwh_per_mile
                                  * electricity_carbon_intensity * lb_to_g * kw_to_mw)
     net_emission_factor_diff = phev_gasoline_emission_factor - electricity_emission_rate
-    numerator = (num_chargers * avg_phevs_served_per_charger_per_day
+    numerator = (num_chargers * d
                  * (pct_phev_miles_electric_with_measure
                     - pct_phev_miles_electric_without_measure)
                  * net_emission_factor_diff)
@@ -1425,7 +1429,7 @@ def t22d_transition_conventional_to_electric_bikeshare(
         ebikeshare_avg_oneway_trip_length=2.1,
         vehicle_to_conventional_bikeshare_substitution_rate=0.196,
         conventional_bikeshare_avg_oneway_trip_length=1.4,
-        daily_vehicle_trips_per_person=1.7,
+        daily_vehicle_trips_per_person=2.7,
         regional_avg_oneway_vehicle_trip_length=9.72):
     """Measure T-22-D: Transition Conventional to Electric Bikeshare.
     Accounts for VMT reductions from transitioning an existing traditional
@@ -1458,7 +1462,8 @@ def t22d_transition_conventional_to_electric_bikeshare(
         Average one-way conventional bikeshare trip length [miles]. Default is
         1.4 (Lazarus et al. 2019).
     daily_vehicle_trips_per_person : float, optional
-        Daily vehicle trips per person. Default is 1.7 (FHWA 2023).
+        Daily vehicle trips per person. Default is 2.7 (FHWA 2018 NHTS),
+        consistent with T-22-A/B/C.
     regional_avg_oneway_vehicle_trip_length : float, optional
         Regional average one-way vehicle trip length [miles]. Default is 9.72
         miles (Los Angeles CBSA from FHWA 2017 Table T-10.1).
