@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tdm-ghg"
-version = "0.2.0"
+version = "0.2.1"
 description = "GHG reduction calculator for transportation demand management measures (CAPCOA 2024 Handbook)"
 readme = "README.md"
 license = { file = "LICENSE" }

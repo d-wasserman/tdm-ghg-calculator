@@ -164,7 +164,7 @@ from tdm_ghg.subsectors import (
 
 from tdm_ghg.utils import multiplicative_dampening
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "David Wasserman"
 
 __all__ = [
