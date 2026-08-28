@@ -40,7 +40,7 @@ import inspect
 from dataclasses import dataclass
 from typing import Any, Callable, Collection, Optional
 
-from tdm_ghg.context import LandUseType, LocationType, Scale, TDMContext
+from tdm_ghg.context import LandUseType, LocationType, Mode, Scale, TDMContext
 
 
 class MeasureExclusivityError(ValueError):
@@ -98,6 +98,13 @@ class MeasureMetadata:
         subsector orchestrators to handle exclusivity.
     func : Callable
         The underlying measure function.
+    target_modes : frozenset[Mode]
+        Travel modes the measure's avoided auto travel shifts toward, drawn
+        from the ``Mode`` taxonomy (never includes ``Mode.SOV``, the source).
+        A measure that applies to all modes declares ``NON_SOV_MODES``;
+        clean-vehicle measures that change emissions per mile without shifting
+        mode declare an empty set. Used by ``tdm_ghg.derived_metrics`` for
+        mode-shift estimation.
     """
     measure_id: str
     name: str
@@ -108,6 +115,17 @@ class MeasureMetadata:
     measure_max: float
     mutually_exclusive_with: frozenset
     func: Callable
+    target_modes: frozenset = frozenset()
+
+    @property
+    def implies_mode_shift(self) -> bool:
+        """Whether this measure implies any mode shift.
+
+        ``True`` when the measure declares one or more ``target_modes``;
+        ``False`` for clean-vehicle measures (e.g. EV charging, cleaner fuels)
+        that cut emissions per mile without changing travel mode.
+        """
+        return bool(self.target_modes)
 
 
 class MeasureRegistry:
@@ -256,6 +274,7 @@ def register_measure(
     measure_max: float,
     land_use_types: Optional[Collection[LandUseType]] = None,
     mutually_exclusive_with: Collection[str] = (),
+    target_modes: Collection[Mode] = (),
 ) -> Callable:
     """Decorator that registers a measure function with the global registry.
 
@@ -277,6 +296,10 @@ def register_measure(
         Applicable land use types. ``None`` means all types.
     mutually_exclusive_with : collection of str, optional
         IDs of measures that cannot be combined with this one.
+    target_modes : collection of Mode, optional
+        Travel modes the measure shifts avoided auto travel toward (never
+        ``Mode.SOV``). Use ``NON_SOV_MODES`` for measures that apply to all
+        modes; leave empty for clean-vehicle measures with no mode shift.
 
     Returns
     -------
@@ -296,6 +319,7 @@ def register_measure(
             measure_max=measure_max,
             mutually_exclusive_with=frozenset(mutually_exclusive_with),
             func=func,
+            target_modes=frozenset(target_modes),
         )
         registry.register(meta)
         return func
