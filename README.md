@@ -225,6 +225,34 @@ combined = multiplicative_dampening([-0.10, -0.08, -0.05], max_reduction_percent
 # -0.15 (capped at 15%)
 ```
 
+## Derived Metrics
+
+The measures return *percent* reductions. Given a baseline and a few supplementary inputs (baseline VMT, average trip distance, an emission factor, baseline mode shares), `tdm_ghg.derived_metrics` back-calculates the absolute quantities those percentages imply — vehicle **trips** avoided, metric **tonnes of CO2e** avoided, and how the avoided auto travel **shifts to other modes**. Reduction inputs may be negative (the library convention) or positive; results are positive magnitudes.
+
+```python
+from tdm_ghg import (TDMContext, Scale, LocationType, LandUseType, run_multi_subsector,
+                     trips_reduced, co2_tonnes_reduced,
+                     per_measure_reductions, estimate_mode_split)
+
+ctx = TDMContext(Scale.PROJECT_SITE, LocationType.URBAN, LandUseType.RESIDENTIAL,
+                 params={"proposed_residential_density": 20.0,
+                         "transit_mode_share": 0.05, "vehicle_mode_share": 0.80})
+frac = run_multi_subsector(ctx)                       # combined fraction, e.g. -0.49
+
+trips_reduced(1_000_000, frac, average_trip_distance=9.5)   # vehicle trips avoided
+co2_tonnes_reduced(1_000_000, frac)                         # metric tonnes CO2e (307.5 g/mi default)
+
+# Mode shift: weights are inferred from each measure's name (a measure that names a
+# mode ascribes all its magnitude to that mode; one that names none splits equally
+# across non-auto modes). No changes to the measure registry are required.
+split = estimate_mode_split(per_measure_reductions(ctx),
+                            baseline_mode_shares={"auto": 0.80, "transit": 0.05,
+                                                  "bike": 0.05, "walk": 0.10})
+split.new_mode_shares    # resulting shares after avoided auto travel is redistributed
+```
+
+The `summarize(...)` helper returns a `DerivedMetrics` bundle (VMT, trips, tonnes, mode split) in one call. CO2 is reported in metric tonnes CO2e; pass `emission_factor_g_per_mile` to override the default light-duty factor.
+
 ## Key Concepts
 
 - **Scale**: `PROJECT_SITE` or `PLAN_COMMUNITY`. Measures from different scales must never be combined.
