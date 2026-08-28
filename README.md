@@ -232,7 +232,7 @@ The measures return *percent* reductions. Given a baseline and a few supplementa
 ```python
 from tdm_ghg import (TDMContext, Scale, LocationType, LandUseType, run_multi_subsector,
                      trips_reduced, co2_tonnes_reduced,
-                     per_measure_reductions, estimate_mode_split)
+                     per_measure_reductions, estimate_mode_split, Mode)
 
 ctx = TDMContext(Scale.PROJECT_SITE, LocationType.URBAN, LandUseType.RESIDENTIAL,
                  params={"proposed_residential_density": 20.0,
@@ -242,14 +242,17 @@ frac = run_multi_subsector(ctx)                       # combined fraction, e.g. 
 trips_reduced(1_000_000, frac, average_trip_distance=9.5)   # vehicle trips avoided
 co2_tonnes_reduced(1_000_000, frac)                         # metric tonnes CO2e (307.5 g/mi default)
 
-# Mode shift: weights are inferred from each measure's name (a measure that names a
-# mode ascribes all its magnitude to that mode; one that names none splits equally
-# across non-auto modes). No changes to the measure registry are required.
+# Mode shift is metadata-driven: each measure declares target_modes (and a derived
+# implies_mode_shift property). A measure's reduction is apportioned across its
+# target modes proportional to their baseline share; SOV is the source that shrinks.
 split = estimate_mode_split(per_measure_reductions(ctx),
-                            baseline_mode_shares={"auto": 0.80, "transit": 0.05,
-                                                  "bike": 0.05, "walk": 0.10})
-split.new_mode_shares    # resulting shares after avoided auto travel is redistributed
+                            baseline_mode_shares={Mode.SOV: 0.80, Mode.HOV: 0.03,
+                                                  Mode.TRANSIT: 0.05, Mode.BIKE: 0.04,
+                                                  Mode.WALK: 0.06, Mode.OTHER: 0.02})
+split.new_mode_shares    # resulting shares after avoided SOV travel is redistributed
 ```
+
+**Mode taxonomy** (`Mode`): `SOV`, `HOV`, `Transit`, `Bike` (incl. broader micromobility), `Walk`, `WFH`, `Other`. SOV is the source being reduced and is never a shift destination. Each measure's `target_modes` records where its avoided travel goes — a single mode (e.g. transit programs → `Transit`), a pair (active-modes-for-youth → `Bike`/`Walk`), or all non-SOV modes (`NON_SOV_MODES`, for general commute/land-use/pricing programs). Clean-vehicle measures (T-14, T-30) declare no target modes, so `implies_mode_shift` is `False`. When no baseline mode shares are supplied, a measure's reduction splits equally across its target modes.
 
 The `summarize(...)` helper returns a `DerivedMetrics` bundle (VMT, trips, tonnes, mode split) in one call. CO2 is reported in metric tonnes CO2e; pass `emission_factor_g_per_mile` to override the default light-duty factor.
 

@@ -9,7 +9,7 @@
 # GHG reductions (e.g., -0.14 = 14% reduction). Positive values indicate
 # an increase. Each function enforces its individual measure cap internally.
 
-from tdm_ghg.context import LandUseType, LocationType, Scale
+from tdm_ghg.context import LandUseType, LocationType, Mode, NON_SOV_MODES, Scale
 from tdm_ghg.registry import register_measure
 
 # Shorthand aliases used in decorator arguments only.
@@ -22,6 +22,13 @@ _RES = LandUseType.RESIDENTIAL
 _COM = LandUseType.COMMERCIAL
 _SCH = LandUseType.SCHOOL
 
+# Mode-shift target aliases (see Mode / NON_SOV_MODES in context.py).
+_HOV = Mode.HOV
+_TRAN = Mode.TRANSIT
+_BIKE = Mode.BIKE          # bicycle + broader micromobility (e-bike, scooter)
+_WALK = Mode.WALK
+_ALLM = NON_SOV_MODES      # applies to all non-SOV modes (proportional split)
+
 
 # ==============================================================================
 # LAND USE SUBSECTOR (Project/Site)
@@ -31,6 +38,7 @@ _SCH = LandUseType.SCHOOL
 
 @register_measure(
     measure_id="T-1",
+    target_modes=_ALLM,
     name="Increase Residential Density",
     subsector="land_use",
     scale=_PS,
@@ -76,6 +84,7 @@ def t1_increase_residential_density(
 
 @register_measure(
     measure_id="T-2",
+    target_modes=_ALLM,
     name="Increase Job Density",
     subsector="land_use",
     scale=_PS,
@@ -118,6 +127,7 @@ def t2_increase_job_density(
 
 @register_measure(
     measure_id="T-3",
+    target_modes={_TRAN},
     name="Provide Transit-Oriented Development",
     subsector="land_use",
     scale=_PS,
@@ -171,6 +181,7 @@ def t3_provide_transit_oriented_development(
 
 @register_measure(
     measure_id="T-4",
+    target_modes=_ALLM,
     name="Integrate Affordable and Below Market Rate Housing",
     subsector="land_use",
     scale=_PS,
@@ -211,6 +222,7 @@ def t4_integrate_affordable_housing(
 
 @register_measure(
     measure_id="T-55",
+    target_modes=_ALLM,
     name="Infill Development",
     subsector="land_use",
     scale=_PS,
@@ -265,6 +277,7 @@ def t55_infill_development(
 
 @register_measure(
     measure_id="T-5",
+    target_modes=_ALLM,
     name="Implement Commute Trip Reduction Program (Voluntary)",
     subsector="trip_reduction",
     scale=_PS,
@@ -306,6 +319,7 @@ def t5_implement_voluntary_commute_trip_reduction(
 
 @register_measure(
     measure_id="T-6",
+    target_modes=_ALLM,
     name="Implement Commute Trip Reduction Program (Mandatory)",
     subsector="trip_reduction",
     scale=_PS,
@@ -353,6 +367,7 @@ def t6_implement_mandatory_commute_trip_reduction(
 
 @register_measure(
     measure_id="T-7",
+    target_modes=_ALLM,
     name="Implement Commute Trip Reduction Marketing",
     subsector="trip_reduction",
     scale=_PS,
@@ -399,6 +414,7 @@ def t7_implement_commute_trip_reduction_marketing(
 
 @register_measure(
     measure_id="T-8",
+    target_modes={_HOV},
     name="Provide Ridesharing Program",
     subsector="trip_reduction",
     scale=_PS,
@@ -440,6 +456,7 @@ def t8_provide_ridesharing_program(
 
 @register_measure(
     measure_id="T-9",
+    target_modes={_TRAN},
     name="Implement Subsidized or Discounted Transit Program",
     subsector="trip_reduction",
     scale=_PS,
@@ -509,6 +526,7 @@ def t9_implement_subsidized_transit_program(
 
 @register_measure(
     measure_id="T-10",
+    target_modes={_BIKE},
     name="Provide End-of-Trip Bicycle Facilities",
     subsector="trip_reduction",
     scale=_PS,
@@ -563,6 +581,7 @@ def t10_provide_end_of_trip_bicycle_facilities(
 
 @register_measure(
     measure_id="T-11",
+    target_modes={_HOV},
     name="Provide Employer-Sponsored Vanpool",
     subsector="trip_reduction",
     scale=_PS,
@@ -630,6 +649,7 @@ def t11_provide_employer_sponsored_vanpool(
 
 @register_measure(
     measure_id="T-12",
+    target_modes=_ALLM,
     name="Price Workplace Parking",
     subsector="trip_reduction",
     scale=_PS,
@@ -686,6 +706,7 @@ def t12_price_workplace_parking(
 
 @register_measure(
     measure_id="T-13",
+    target_modes=_ALLM,
     name="Implement Employee Parking Cash-Out",
     subsector="trip_reduction",
     scale=_PS,
@@ -732,6 +753,7 @@ def t13_implement_employee_parking_cash_out(
 
 @register_measure(
     measure_id="T-14",
+    target_modes=set(),  # clean-vehicle: cuts g/mi, no mode shift
     name="Provide Electric Vehicle Charging Infrastructure",
     subsector="parking_management",
     scale=_PS,
@@ -811,6 +833,7 @@ def t14_provide_ev_charging_infrastructure(
 
 @register_measure(
     measure_id="T-15",
+    target_modes=_ALLM,
     name="Limit Residential Parking Supply",
     subsector="parking_management",
     scale=_PS,
@@ -868,6 +891,7 @@ def t15_limit_residential_parking_supply(
 
 @register_measure(
     measure_id="T-16",
+    target_modes=_ALLM,
     name="Unbundle Residential Parking Costs from Property Cost",
     subsector="parking_management",
     scale=_PS,
@@ -922,6 +946,7 @@ def t16_unbundle_residential_parking_costs(
 
 @register_measure(
     measure_id="T-17",
+    target_modes=_ALLM,
     name="Improve Street Connectivity",
     subsector="land_use",
     scale=_PC,
@@ -972,6 +997,7 @@ def t17_improve_street_connectivity(
 
 @register_measure(
     measure_id="T-18",
+    target_modes={_WALK},
     name="Provide Pedestrian Network Improvement",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1014,6 +1040,7 @@ def t18_provide_pedestrian_network_improvement(
 
 @register_measure(
     measure_id="T-19-A",
+    target_modes={_BIKE},
     name="Construct or Improve Bike Facility",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1082,6 +1109,7 @@ def t19a_construct_or_improve_bike_facility(
 
 @register_measure(
     measure_id="T-19-B",
+    target_modes={_BIKE},
     name="Construct or Improve Bike Boulevard",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1151,6 +1179,7 @@ def t19b_construct_or_improve_bike_boulevard(
 
 @register_measure(
     measure_id="T-20",
+    target_modes={_BIKE},
     name="Expand Bikeway Network",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1208,6 +1237,7 @@ def t20_expand_bikeway_network(
 
 @register_measure(
     measure_id="T-22-A",
+    target_modes={_BIKE},
     name="Implement Pedal (Non-Electric) Bikeshare Program",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1270,6 +1300,7 @@ def t22a_implement_pedal_bikeshare(
 
 @register_measure(
     measure_id="T-22-B",
+    target_modes={_BIKE},
     name="Implement Electric Bikeshare Program",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1332,6 +1363,7 @@ def t22b_implement_electric_bikeshare(
 
 @register_measure(
     measure_id="T-22-C",
+    target_modes={_BIKE},  # scootershare — Bike covers broader micromobility
     name="Implement Scootershare Program",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1415,6 +1447,7 @@ def t22c_implement_scootershare(
 
 @register_measure(
     measure_id="T-22-D",
+    target_modes={_BIKE},
     name="Transition Conventional to Electric Bikeshare",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1489,6 +1522,7 @@ def t22d_transition_conventional_to_electric_bikeshare(
 
 @register_measure(
     measure_id="T-21-A",
+    target_modes=_ALLM,
     name="Implement Conventional Carshare Program",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1537,6 +1571,7 @@ def t21a_implement_conventional_carshare(
 
 @register_measure(
     measure_id="T-21-B",
+    target_modes=_ALLM,
     name="Implement Electric Carshare Program",
     subsector="neighborhood_design",
     scale=_PC,
@@ -1608,6 +1643,7 @@ def t21b_implement_electric_carshare(
 
 @register_measure(
     measure_id="T-23",
+    target_modes=_ALLM,
     name="Provide Community-Based Travel Planning",
     subsector="trip_reduction",
     scale=_PC,
@@ -1667,6 +1703,7 @@ def t23_provide_community_based_travel_planning(
 
 @register_measure(
     measure_id="T-24",
+    target_modes=_ALLM,
     name="Implement Market Price Public Parking (On-Street)",
     subsector="parking_management",
     scale=_PC,
@@ -1738,6 +1775,7 @@ def t24_implement_market_price_public_parking(
 
 @register_measure(
     measure_id="T-25",
+    target_modes={_TRAN},
     name="Extend Transit Network Coverage or Hours",
     subsector="transit",
     scale=_PC,
@@ -1798,6 +1836,7 @@ def t25_extend_transit_network_coverage_or_hours(
 
 @register_measure(
     measure_id="T-26",
+    target_modes={_TRAN},
     name="Increase Transit Service Frequency",
     subsector="transit",
     scale=_PC,
@@ -1858,6 +1897,7 @@ def t26_increase_transit_service_frequency(
 
 @register_measure(
     measure_id="T-27",
+    target_modes={_TRAN},
     name="Implement Transit-Supportive Roadway Treatments",
     subsector="transit",
     scale=_PC,
@@ -1921,6 +1961,7 @@ def t27_implement_transit_supportive_roadway_treatments(
 
 @register_measure(
     measure_id="T-28",
+    target_modes={_TRAN},
     name="Provide Bus Rapid Transit",
     subsector="transit",
     scale=_PC,
@@ -2003,6 +2044,7 @@ def t28_provide_bus_rapid_transit(
 
 @register_measure(
     measure_id="T-46",
+    target_modes={_TRAN},
     name="Provide Transit Shelters",
     subsector="transit",
     scale=_PC,
@@ -2086,6 +2128,7 @@ def t46_provide_transit_shelters(
 
 @register_measure(
     measure_id="T-29",
+    target_modes={_TRAN},
     name="Reduce Transit Fares",
     subsector="transit",
     scale=_PC,
@@ -2155,6 +2198,7 @@ def t29_reduce_transit_fares(
 
 @register_measure(
     measure_id="T-40",
+    target_modes={_TRAN},  # shared school bus (high-occupancy transit)
     name="Establish a School Bus Program",
     subsector="school_programs",
     scale=_PS,
@@ -2226,6 +2270,7 @@ def t40_establish_school_bus_program(
 
 @register_measure(
     measure_id="T-56",
+    target_modes={_BIKE, _WALK},
     name="Active Modes of Transportation for Youth",
     subsector="school_programs",
     scale=_PS,
@@ -2297,6 +2342,7 @@ def t56_active_modes_transportation_youth(
 
 @register_measure(
     measure_id="T-30",
+    target_modes=set(),  # clean-vehicle: cuts g/mi, no mode shift
     name="Use Cleaner-Fuel Vehicles",
     subsector="clean_vehicles",
     scale=_PC,

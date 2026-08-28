@@ -19,6 +19,11 @@
 These back-calculate absolute quantities (VMT, trips, tonnes CO2, mode shift)
 from the library's signed percent reductions. Reduction inputs may be negative
 (the library convention) or positive; results are positive magnitudes.
+
+Mode shift is metadata-driven: each measure declares ``target_modes`` and a
+derived ``implies_mode_shift`` property, and a measure's reduction is apportioned
+across its target modes in proportion to their baseline shares (equal split when
+no baseline is supplied). SOV is the source mode that shrinks.
 """
 
 import pytest
@@ -28,10 +33,12 @@ from tdm_ghg import (
     Scale,
     LocationType,
     LandUseType,
+    Mode,
+    NON_SOV_MODES,
+    registry,
 )
 from tdm_ghg.derived_metrics import (
     DEFAULT_EMISSION_FACTOR_G_PER_MILE,
-    NON_AUTO_MODES,
     DerivedMetrics,
     ModeSplit,
     vmt_reduced,
@@ -39,7 +46,6 @@ from tdm_ghg.derived_metrics import (
     trips_reduced,
     co2_tonnes_from_vmt,
     co2_tonnes_reduced,
-    infer_measure_mode,
     generate_mode_shift_weights,
     estimate_mode_split,
     per_measure_reductions,
@@ -96,83 +102,132 @@ class TestCo2:
         assert DEFAULT_EMISSION_FACTOR_G_PER_MILE == 307.5
 
 
-class TestInferMeasureMode:
-    def test_transit_measure_by_id(self):
-        # T-9 = "Implement Subsidized or Discounted Transit Program".
-        assert infer_measure_mode("T-9") == "transit"
+class TestModeTaxonomy:
+    def test_mode_values(self):
+        assert [m.value for m in Mode] == [
+            "sov", "hov", "transit", "bike", "walk", "wfh", "other",
+        ]
 
-    def test_bike_measure_by_id(self):
-        # T-20 = "Expand Bikeway Network".
-        assert infer_measure_mode("T-20") == "bike"
+    def test_non_sov_modes_excludes_sov(self):
+        assert Mode.SOV not in NON_SOV_MODES
+        assert NON_SOV_MODES == frozenset({
+            Mode.HOV, Mode.TRANSIT, Mode.BIKE, Mode.WALK, Mode.WFH, Mode.OTHER,
+        })
 
-    def test_pedestrian_measure_by_id(self):
-        # T-18 = "Provide Pedestrian Network Improvement".
-        assert infer_measure_mode("T-18") == "walk"
+    def test_mode_is_str_comparable(self):
+        # str-enum: metadata keyed by Mode resolves with plain strings too.
+        assert Mode.TRANSIT == "transit"
 
-    def test_no_mode_measure_returns_none(self):
-        # T-1 = "Increase Residential Density" names no travel mode.
-        assert infer_measure_mode("T-1") is None
 
-    def test_raw_name_string(self):
-        assert infer_measure_mode("Reduce Transit Fares") == "transit"
+class TestMeasureModeMetadata:
+    """The classification lives on the measure metadata, not in name inference."""
 
-    def test_unknown_returns_none(self):
-        assert infer_measure_mode("something with no mode words") is None
+    def test_transit_measure(self):
+        assert registry.get("T-9").target_modes == frozenset({Mode.TRANSIT})
+
+    def test_hov_measure(self):
+        assert registry.get("T-8").target_modes == frozenset({Mode.HOV})
+
+    def test_bike_measure(self):
+        assert registry.get("T-20").target_modes == frozenset({Mode.BIKE})
+
+    def test_scootershare_is_bike(self):
+        # Bike encompasses the broader micromobility category.
+        assert registry.get("T-22-C").target_modes == frozenset({Mode.BIKE})
+
+    def test_active_youth_is_bike_and_walk(self):
+        assert registry.get("T-56").target_modes == frozenset({Mode.BIKE, Mode.WALK})
+
+    def test_all_modes_measure(self):
+        assert registry.get("T-1").target_modes == NON_SOV_MODES
+
+    def test_clean_vehicle_has_no_mode_shift(self):
+        for mid in ("T-14", "T-30"):
+            meta = registry.get(mid)
+            assert meta.target_modes == frozenset()
+            assert meta.implies_mode_shift is False
+
+    def test_every_other_measure_implies_mode_shift(self):
+        for mid, meta in registry.measures.items():
+            if mid in {"T-14", "T-30"}:
+                continue
+            assert meta.implies_mode_shift, mid
+
+    def test_sov_is_never_a_destination(self):
+        for meta in registry.measures.values():
+            assert Mode.SOV not in meta.target_modes
 
 
 class TestGenerateModeShiftWeights:
-    def test_named_mode_gets_full_magnitude(self):
+    def test_single_mode_gets_full_magnitude(self):
         weights = generate_mode_shift_weights({"T-9": -0.05})
-        assert weights["transit"] == pytest.approx(0.05)
-        assert weights["bike"] == pytest.approx(0.0)
-        assert weights["walk"] == pytest.approx(0.0)
+        assert weights[Mode.TRANSIT] == pytest.approx(0.05)
+        assert set(weights) == {Mode.TRANSIT}
 
-    def test_unnamed_mode_splits_equally(self):
-        # T-1 names no mode -> 0.09 split across 3 non-auto modes = 0.03 each.
-        weights = generate_mode_shift_weights({"T-1": -0.09})
-        for mode in NON_AUTO_MODES:
-            assert weights[mode] == pytest.approx(0.03)
+    def test_clean_vehicle_contributes_nothing(self):
+        assert generate_mode_shift_weights({"T-30": -0.5}) == {}
 
-    def test_weights_sum_across_measures(self):
-        weights = generate_mode_shift_weights({"T-9": -0.05, "T-20": -0.02})
-        assert weights["transit"] == pytest.approx(0.05)
-        assert weights["bike"] == pytest.approx(0.02)
+    def test_equal_split_without_baseline(self):
+        # T-1 targets all six non-SOV modes -> 0.06 / 6 = 0.01 each.
+        weights = generate_mode_shift_weights({"T-1": -0.06})
+        assert set(weights) == set(NON_SOV_MODES)
+        for mode in NON_SOV_MODES:
+            assert weights[mode] == pytest.approx(0.01)
+
+    def test_proportional_to_baseline(self):
+        # Transit baseline share is double bike's, so transit absorbs 2x the shift.
+        baseline = {Mode.TRANSIT: 0.10, Mode.BIKE: 0.05, Mode.HOV: 0.05}
+        weights = generate_mode_shift_weights(
+            {"T-1": -0.06}, baseline_mode_shares=baseline
+        )
+        assert weights[Mode.TRANSIT] == pytest.approx(0.03)   # 0.06 * 0.10/0.20
+        assert weights[Mode.BIKE] == pytest.approx(0.015)
+        assert weights[Mode.HOV] == pytest.approx(0.015)
+        # Modes with zero baseline share absorb nothing.
+        assert weights.get(Mode.WFH, 0.0) == pytest.approx(0.0)
+        # And more than an equal split (0.01) went to transit.
+        assert weights[Mode.TRANSIT] > 0.06 / len(NON_SOV_MODES)
+
+    def test_target_modes_override(self):
+        weights = generate_mode_shift_weights(
+            {"custom": -0.04}, target_modes_override={"custom": {Mode.WFH}}
+        )
+        assert weights == {Mode.WFH: pytest.approx(0.04)}
 
     def test_zero_magnitude_skipped(self):
-        weights = generate_mode_shift_weights({"T-9": 0.0})
-        assert sum(weights.values()) == pytest.approx(0.0)
+        assert generate_mode_shift_weights({"T-9": 0.0}) == {}
 
 
 class TestEstimateModeSplit:
-    def test_apportionment_matches_weights(self):
-        split = estimate_mode_split({"T-9": -0.06, "T-20": -0.02})
+    def test_sov_is_the_source(self):
+        baseline = {Mode.SOV: 0.80, Mode.TRANSIT: 0.05, Mode.BIKE: 0.05}
+        split = estimate_mode_split({"T-9": -0.06}, baseline_mode_shares=baseline)
         assert isinstance(split, ModeSplit)
-        assert split.total_auto_change == pytest.approx(0.08)
-        assert split.apportioned["transit"] == pytest.approx(0.06)
-        assert split.apportioned["bike"] == pytest.approx(0.02)
-        assert split.apportioned["walk"] == pytest.approx(0.0)
+        assert split.total_sov_reduction == pytest.approx(0.06)
+        assert split.new_mode_shares[Mode.SOV] == pytest.approx(0.74)
+        assert split.new_mode_shares[Mode.TRANSIT] == pytest.approx(0.11)
 
     def test_shares_sum_to_one(self):
-        split = estimate_mode_split({"T-9": -0.06, "T-20": -0.02})
+        split = estimate_mode_split({"T-9": -0.06, "T-8": -0.02})
         assert sum(split.shares.values()) == pytest.approx(1.0)
 
-    def test_new_mode_shares(self):
-        baseline = {"auto": 0.80, "transit": 0.05, "bike": 0.05, "walk": 0.10}
-        split = estimate_mode_split({"T-9": -0.06}, baseline_mode_shares=baseline)
-        assert split.new_mode_shares["auto"] == pytest.approx(0.74)
-        assert split.new_mode_shares["transit"] == pytest.approx(0.11)
-        # Shares still sum to 1 (travel moved, not created).
+    def test_new_shares_conserve_total(self):
+        baseline = {Mode.SOV: 0.80, Mode.HOV: 0.03, Mode.TRANSIT: 0.05,
+                    Mode.BIKE: 0.04, Mode.WALK: 0.06, Mode.WFH: 0.0, Mode.OTHER: 0.02}
+        split = estimate_mode_split(
+            {"T-1": -0.10, "T-3": -0.05}, baseline_mode_shares=baseline
+        )
         assert sum(split.new_mode_shares.values()) == pytest.approx(1.0)
 
     def test_empty_reductions_no_change(self):
         split = estimate_mode_split({})
-        assert split.total_auto_change == pytest.approx(0.0)
+        assert split.total_sov_reduction == pytest.approx(0.0)
         assert split.shares == {}
 
-    def test_auto_share_floored_at_zero(self):
-        baseline = {"auto": 0.05, "transit": 0.95}
+    def test_sov_share_floored_at_zero(self):
+        baseline = {Mode.SOV: 0.05, Mode.TRANSIT: 0.95}
         split = estimate_mode_split({"T-9": -0.10}, baseline_mode_shares=baseline)
-        assert split.new_mode_shares["auto"] == pytest.approx(0.0)
+        assert split.new_mode_shares[Mode.SOV] == pytest.approx(0.0)
 
 
 class TestPerMeasureReductions:
@@ -190,7 +245,6 @@ class TestPerMeasureReductions:
         assert result["T-1"] < 0.0
 
     def test_skips_measures_missing_params(self):
-        # Only density is supplied, so measures needing other params are skipped.
         result = per_measure_reductions(self._ctx())
         assert all(v is not None for v in result.values())
 
@@ -201,15 +255,16 @@ class TestSummarize:
             baseline_vmt=1_000_000,
             reduction_fraction=-0.10,
             average_trip_distance=10.0,
-            measure_reductions={"T-9": -0.06, "T-20": -0.02},
-            baseline_mode_shares={"auto": 0.80, "transit": 0.05,
-                                  "bike": 0.05, "walk": 0.10},
+            measure_reductions={"T-9": -0.06, "T-8": -0.02},
+            baseline_mode_shares={Mode.SOV: 0.80, Mode.HOV: 0.05,
+                                  Mode.TRANSIT: 0.05, Mode.BIKE: 0.05,
+                                  Mode.WALK: 0.05},
         )
         assert isinstance(metrics, DerivedMetrics)
         assert metrics.vmt_reduced == pytest.approx(100_000)
         assert metrics.trips_reduced == pytest.approx(10_000)
         assert metrics.co2_tonnes_reduced == pytest.approx(30.75)
-        assert metrics.mode_split.total_auto_change == pytest.approx(0.08)
+        assert metrics.mode_split.total_sov_reduction == pytest.approx(0.08)
 
     def test_optional_fields_none(self):
         metrics = summarize(baseline_vmt=1_000_000, reduction_fraction=-0.10)

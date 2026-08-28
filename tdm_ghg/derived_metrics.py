@@ -31,8 +31,9 @@ few supplementary inputs are supplied:
 * **Trips reduced** — vehicle trips avoided, from an average trip distance.
 * **Tonnes of CO2 reduced** — metric tonnes CO2e avoided, from an emission
   factor.
-* **Mode shift** — how the avoided auto travel redistributes across non-auto
-  modes (transit / bike / walk).
+* **Mode shift** — how the avoided SOV (single-occupancy vehicle) travel
+  redistributes across the other modes in the :class:`~tdm_ghg.context.Mode`
+  taxonomy (HOV / Transit / Bike / Walk / WFH / Other).
 
 Every function here is a pure back-calculation: it takes a signed reduction
 fraction (or a ``{measure: fraction}`` mapping) plus supplementary inputs and
@@ -40,12 +41,14 @@ returns a derived quantity. Reductions are returned as positive magnitudes
 (miles, trips, tonnes avoided) regardless of the sign of the input fraction, so
 callers may pass the library's negative fractions directly.
 
-Mode shift is intentionally decoupled from the measure registry: the mode a
-measure shifts travel toward is *inferred* from the measure's name/subsector via
-keyword matching (see :data:`MODE_KEYWORDS`), rather than stored on each
-measure. A measure whose name mentions a mode ascribes all of its magnitude to
-that mode; a measure that names no mode splits its magnitude equally across the
-non-auto modes.
+Mode shift is driven by explicit measure metadata rather than inferred from
+names: each measure declares the modes it shifts travel toward via
+``MeasureMetadata.target_modes`` (see ``registry.py``) and whether it implies
+any mode shift at all via the derived ``implies_mode_shift`` property
+(clean-vehicle measures such as EV charging declare no target modes). A
+measure's reduction magnitude is apportioned across its target modes in
+proportion to those modes' baseline shares (falling back to an equal split when
+no baseline is supplied); SOV is always the source whose share shrinks.
 
 Examples
 --------
@@ -61,6 +64,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
+from tdm_ghg.context import Mode
 from tdm_ghg.registry import registry
 
 # --------------------------------------------------------------------------- #
@@ -76,29 +80,6 @@ GRAMS_PER_METRIC_TON = 1_000_000
 #: (CARB EMFAC). Override per analysis via the ``emission_factor_g_per_mile``
 #: argument.
 DEFAULT_EMISSION_FACTOR_G_PER_MILE = 307.5
-
-#: Non-auto modes that avoided auto travel is redistributed across.
-NON_AUTO_MODES = ("transit", "bike", "walk")
-
-#: Substring -> mode heuristic used to infer which mode a measure shifts travel
-#: toward, matched (case-insensitive) against a measure's name and subsector.
-#: Tunable: pass a custom mapping to the mode-shift functions to adjust it.
-MODE_KEYWORDS = {
-    "transit": "transit",
-    "bus": "transit",
-    "rapid transit": "transit",
-    "fare": "transit",
-    "shelter": "transit",
-    "bike": "bike",
-    "bicycle": "bike",
-    "bikeway": "bike",
-    "bikeshare": "bike",
-    "boulevard": "bike",
-    "scooter": "bike",
-    "pedestrian": "walk",
-    "walk": "walk",
-    "active modes": "walk",
-}
 
 
 # --------------------------------------------------------------------------- #
@@ -222,87 +203,90 @@ def co2_tonnes_reduced(
 
 
 # --------------------------------------------------------------------------- #
-# Mode shift (decoupled — inferred from measure names, not the decorators)
+# Mode shift (metadata-driven — from each measure's declared target_modes)
 # --------------------------------------------------------------------------- #
 
-def infer_measure_mode(measure, mode_keywords=None):
-    """Infer the non-auto mode a measure shifts travel toward.
+def _apportion(magnitude, target_modes, baseline_mode_shares=None):
+    """Split ``magnitude`` across ``target_modes``.
 
-    The measure's descriptive text is matched (case-insensitive) against
-    ``mode_keywords``. ``measure`` may be a CAPCOA measure ID (e.g. ``"T-9"``),
-    which is resolved to its registered name and subsector, or a raw name
-    string.
+    The split is proportional to each target mode's baseline share (normalized
+    within the target set). When ``baseline_mode_shares`` is ``None`` or every
+    target mode has zero baseline share, the split is equal.
 
     Parameters
     ----------
-    measure : str
-        A registered measure ID or a raw measure name.
-    mode_keywords : Mapping[str, str], optional
-        Substring -> mode mapping. Defaults to :data:`MODE_KEYWORDS`.
+    magnitude : float
+        Non-negative amount to apportion (a measure's reduction magnitude).
+    target_modes : Collection[Mode]
+        Destination modes to split across.
+    baseline_mode_shares : Mapping, optional
+        Baseline shares keyed by ``Mode`` (or its string value). ``Mode`` is a
+        ``str`` enum, so string- and enum-keyed mappings both resolve.
 
     Returns
     -------
-    str or None
-        The inferred mode (e.g. ``"transit"``), or ``None`` if no keyword
-        matches (the caller then splits the magnitude across all non-auto
-        modes).
+    dict[Mode, float]
+        Portion of ``magnitude`` assigned to each target mode.
     """
-    if mode_keywords is None:
-        mode_keywords = MODE_KEYWORDS
-    meta = registry.get(measure)
-    if meta is not None:
-        text = f"{meta.name} {meta.subsector}".lower()
-    else:
-        text = str(measure).lower()
-    for keyword, mode in mode_keywords.items():
-        if keyword in text:
-            return mode
-    return None
+    modes = list(target_modes)
+    if not modes:
+        return {}
+    total_base = 0.0
+    if baseline_mode_shares is not None:
+        base = {m: float(baseline_mode_shares.get(m, 0.0)) for m in modes}
+        total_base = sum(base.values())
+    if total_base > 0:
+        return {m: magnitude * base[m] / total_base for m in modes}
+    share = magnitude / len(modes)
+    return {m: share for m in modes}
 
 
 def generate_mode_shift_weights(
     measure_reductions,
-    non_auto_modes=NON_AUTO_MODES,
-    mode_keywords=None,
+    baseline_mode_shares=None,
+    target_modes_override=None,
 ):
     """Sum per-mode mode-shift weights across a set of measures.
 
-    For each measure with reduction magnitude ``m = abs(fraction)``:
-
-    * if a mode can be inferred (:func:`infer_measure_mode`), all of ``m`` is
-      ascribed to that mode;
-    * otherwise ``m`` is split equally across ``non_auto_modes``.
-
-    The contributions are summed per mode. The total of the returned weights is
-    the aggregate auto-mode change apportioned across modes.
+    For each measure, its target modes come from the registry
+    (``MeasureMetadata.target_modes``) unless overridden. Measures with no
+    target modes — clean-vehicle measures where ``implies_mode_shift`` is
+    ``False`` — contribute nothing. Each measure's reduction magnitude
+    (``abs(fraction)``) is apportioned across its target modes in proportion to
+    those modes' baseline shares (equal split when no baseline is supplied; see
+    :func:`_apportion`), and the contributions are summed per mode.
 
     Parameters
     ----------
     measure_reductions : Mapping[str, float]
-        Mapping of measure ID (or name) to its signed reduction fraction.
-    non_auto_modes : tuple of str, optional
-        Modes to split unattributed magnitude across. Defaults to
-        :data:`NON_AUTO_MODES`.
-    mode_keywords : Mapping[str, str], optional
-        Passed through to :func:`infer_measure_mode`.
+        Mapping of measure ID to its signed reduction fraction.
+    baseline_mode_shares : Mapping, optional
+        Baseline mode shares keyed by ``Mode`` (or its string value), used for
+        the proportional apportionment.
+    target_modes_override : Mapping[str, Collection[Mode]], optional
+        Per-measure target modes overriding (or, for measures not in the
+        registry, supplying) the registered ``target_modes``.
 
     Returns
     -------
-    dict[str, float]
-        Summed weight per mode (keys are ``non_auto_modes``).
+    dict[Mode, float]
+        Summed weight per destination mode.
     """
-    weights = {mode: 0.0 for mode in non_auto_modes}
+    weights: dict = {}
+    override = target_modes_override or {}
     for measure, fraction in measure_reductions.items():
         magnitude = abs(float(fraction))
         if magnitude == 0.0:
             continue
-        mode = infer_measure_mode(measure, mode_keywords=mode_keywords)
-        if mode in weights:
-            weights[mode] += magnitude
+        if measure in override:
+            target_modes = override[measure]
         else:
-            share = magnitude / len(non_auto_modes)
-            for m in non_auto_modes:
-                weights[m] += share
+            meta = registry.get(measure)
+            target_modes = meta.target_modes if meta is not None else ()
+        for mode, amount in _apportion(
+            magnitude, target_modes, baseline_mode_shares
+        ).items():
+            weights[mode] = weights.get(mode, 0.0) + amount
     return weights
 
 
@@ -312,24 +296,26 @@ class ModeSplit:
 
     Attributes
     ----------
-    weights : dict[str, float]
-        Summed mode-shift weight per non-auto mode.
-    shares : dict[str, float]
+    weights : dict[Mode, float]
+        Summed mode-shift weight per destination mode.
+    shares : dict[Mode, float]
         Normalized weights (each weight / total), summing to 1.0. Empty when
         the total weight is zero.
-    total_auto_change : float
-        Aggregate auto-mode change (sum of ``weights``); the magnitude
-        redistributed from auto to non-auto modes.
-    apportioned : dict[str, float]
-        Portion of ``total_auto_change`` assigned to each non-auto mode.
-    new_mode_shares : dict[str, float] or None
+    total_sov_reduction : float
+        Aggregate SOV reduction (sum of ``weights``); the magnitude shifted out
+        of SOV into the destination modes.
+    apportioned : dict[Mode, float]
+        Portion of ``total_sov_reduction`` assigned to each destination mode
+        (identical to ``weights``).
+    new_mode_shares : dict or None
         Resulting mode shares when ``baseline_mode_shares`` was supplied,
-        otherwise ``None``. Auto is reduced by ``total_auto_change`` (clamped at
-        0) and each non-auto mode is incremented by its apportionment.
+        otherwise ``None``. ``Mode.SOV`` is reduced by ``total_sov_reduction``
+        (floored at 0) and each destination mode is incremented by its
+        apportionment.
     """
     weights: dict
     shares: dict
-    total_auto_change: float
+    total_sov_reduction: float
     apportioned: dict
     new_mode_shares: Optional[dict] = None
 
@@ -337,63 +323,61 @@ class ModeSplit:
 def estimate_mode_split(
     measure_reductions,
     baseline_mode_shares=None,
-    non_auto_modes=NON_AUTO_MODES,
-    mode_keywords=None,
+    target_modes_override=None,
 ):
-    """Estimate how avoided auto travel redistributes across non-auto modes.
+    """Estimate how avoided SOV travel redistributes across the other modes.
 
-    Weights are inferred per measure (:func:`generate_mode_shift_weights`) and
-    summed. Their total is the aggregate auto-mode change; it is apportioned
-    across non-auto modes in proportion to each mode's weight. This uses the
-    additive combination the model calls for; to combine the fractions with
-    CAPCOA multiplicative dampening instead, pre-combine them with
+    Each measure's reduction is apportioned across its declared ``target_modes``
+    in proportion to those modes' baseline shares (equal split without a
+    baseline) and summed per mode (:func:`generate_mode_shift_weights`). SOV is
+    the source: its share shrinks by the total and the destination modes grow.
+    The combination is additive; to combine the fractions with CAPCOA
+    multiplicative dampening instead, pre-combine them with
     :func:`tdm_ghg.utils.multiplicative_dampening` before calling.
 
     Parameters
     ----------
     measure_reductions : Mapping[str, float]
-        Mapping of measure ID (or name) to its signed reduction fraction.
-    baseline_mode_shares : Mapping[str, float], optional
-        Baseline mode shares including an ``"auto"`` key (e.g.
-        ``{"auto": 0.80, "transit": 0.05, "bike": 0.05, "walk": 0.10}``). When
-        supplied, resulting shares are computed on ``ModeSplit.new_mode_shares``.
-    non_auto_modes : tuple of str, optional
-        Non-auto modes. Defaults to :data:`NON_AUTO_MODES`.
-    mode_keywords : Mapping[str, str], optional
-        Passed through to :func:`infer_measure_mode`.
+        Mapping of measure ID to its signed reduction fraction.
+    baseline_mode_shares : Mapping, optional
+        Baseline mode shares keyed by ``Mode`` (or its string value), including
+        a ``Mode.SOV`` entry, e.g. ``{Mode.SOV: 0.80, Mode.HOV: 0.05,
+        Mode.TRANSIT: 0.05, Mode.BIKE: 0.05, Mode.WALK: 0.05}``. When supplied,
+        ``ModeSplit.new_mode_shares`` is computed and the per-measure
+        apportionment is weighted by these shares.
+    target_modes_override : Mapping[str, Collection[Mode]], optional
+        Per-measure target modes overriding the registered classification.
 
     Returns
     -------
     ModeSplit
-        The weights, normalized shares, aggregate auto change, per-mode
+        The weights, normalized shares, aggregate SOV reduction, per-mode
         apportionment, and (optionally) resulting mode shares.
     """
     weights = generate_mode_shift_weights(
-        measure_reductions, non_auto_modes=non_auto_modes, mode_keywords=mode_keywords
+        measure_reductions,
+        baseline_mode_shares=baseline_mode_shares,
+        target_modes_override=target_modes_override,
     )
     total = sum(weights.values())
-    if total > 0:
-        shares = {mode: w / total for mode, w in weights.items()}
-    else:
-        shares = {}
-    apportioned = {mode: total * shares.get(mode, 0.0) for mode in non_auto_modes}
+    shares = {mode: w / total for mode, w in weights.items()} if total > 0 else {}
 
     new_mode_shares = None
     if baseline_mode_shares is not None:
         new_mode_shares = dict(baseline_mode_shares)
-        new_mode_shares["auto"] = max(
-            0.0, baseline_mode_shares.get("auto", 0.0) - total
+        new_mode_shares[Mode.SOV] = max(
+            0.0, float(baseline_mode_shares.get(Mode.SOV, 0.0)) - total
         )
-        for mode in non_auto_modes:
+        for mode, amount in weights.items():
             new_mode_shares[mode] = (
-                baseline_mode_shares.get(mode, 0.0) + apportioned[mode]
+                float(baseline_mode_shares.get(mode, 0.0)) + amount
             )
 
     return ModeSplit(
         weights=weights,
         shares=shares,
-        total_auto_change=total,
-        apportioned=apportioned,
+        total_sov_reduction=total,
+        apportioned=dict(weights),
         new_mode_shares=new_mode_shares,
     )
 

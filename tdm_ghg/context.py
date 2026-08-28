@@ -69,6 +69,32 @@ class LandUseType(str, Enum):
     SCHOOL = "school"
 
 
+class Mode(str, Enum):
+    """Travel mode taxonomy for mode-shift analysis.
+
+    A measure's avoided auto travel shifts toward one or more of these modes.
+    SOV is the single-occupancy vehicle travel being reduced — it is the
+    *source* of the shift and never a destination. The remaining six modes
+    (``NON_SOV_MODES``) are the possible destinations.
+    """
+    SOV = "sov"        # single-occupancy vehicle (the source being reduced)
+    HOV = "hov"        # high-occupancy vehicle (carpool / vanpool)
+    TRANSIT = "transit"
+    BIKE = "bike"      # bicycle and broader micromobility (e-bike, scooter)
+    WALK = "walk"
+    WFH = "wfh"        # work from home / trips eliminated
+    OTHER = "other"
+
+
+#: Non-SOV destination modes. A measure that "applies to all modes" (e.g. a
+#: general commute-trip-reduction program, or land-use/pricing measures with no
+#: single target mode) declares ``target_modes=NON_SOV_MODES``; its reduction is
+#: apportioned across these modes in proportion to their baseline shares.
+NON_SOV_MODES = frozenset({
+    Mode.HOV, Mode.TRANSIT, Mode.BIKE, Mode.WALK, Mode.WFH, Mode.OTHER,
+})
+
+
 @dataclass
 class TDMContext:
     """Context for a TDM GHG reduction analysis.
