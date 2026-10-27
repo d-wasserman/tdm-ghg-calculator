@@ -157,6 +157,15 @@ class TestMeasureModeMetadata:
         for meta in registry.measures.values():
             assert Mode.SOV not in meta.target_modes
 
+    def test_land_use_mode_shift_fraction_is_one_third(self):
+        for mid in ("T-1", "T-2", "T-3", "T-4", "T-55", "T-17"):
+            assert registry.get(mid).mode_shift_fraction == pytest.approx(1 / 3), mid
+
+    def test_non_land_use_mode_shift_fraction_is_one(self):
+        # Transit, parking, and clean-vehicle measures are not land-use changes.
+        for mid in ("T-9", "T-15", "T-16", "T-24", "T-8", "T-30"):
+            assert registry.get(mid).mode_shift_fraction == pytest.approx(1.0), mid
+
 
 class TestGenerateModeShiftWeights:
     def test_single_mode_gets_full_magnitude(self):
@@ -168,17 +177,19 @@ class TestGenerateModeShiftWeights:
         assert generate_mode_shift_weights({"T-30": -0.5}) == {}
 
     def test_equal_split_without_baseline(self):
-        # T-1 targets all six non-SOV modes -> 0.06 / 6 = 0.01 each.
-        weights = generate_mode_shift_weights({"T-1": -0.06})
+        # T-5 targets all six non-SOV modes (mode_shift_fraction 1.0) ->
+        # 0.06 / 6 = 0.01 each.
+        weights = generate_mode_shift_weights({"T-5": -0.06})
         assert set(weights) == set(NON_SOV_MODES)
         for mode in NON_SOV_MODES:
             assert weights[mode] == pytest.approx(0.01)
 
     def test_proportional_to_baseline(self):
         # Transit baseline share is double bike's, so transit absorbs 2x the shift.
+        # T-5 is an all-modes measure with mode_shift_fraction 1.0 (not land-use).
         baseline = {Mode.TRANSIT: 0.10, Mode.BIKE: 0.05, Mode.HOV: 0.05}
         weights = generate_mode_shift_weights(
-            {"T-1": -0.06}, baseline_mode_shares=baseline
+            {"T-5": -0.06}, baseline_mode_shares=baseline
         )
         assert weights[Mode.TRANSIT] == pytest.approx(0.03)   # 0.06 * 0.10/0.20
         assert weights[Mode.BIKE] == pytest.approx(0.015)
@@ -187,6 +198,14 @@ class TestGenerateModeShiftWeights:
         assert weights.get(Mode.WFH, 0.0) == pytest.approx(0.0)
         # And more than an equal split (0.01) went to transit.
         assert weights[Mode.TRANSIT] > 0.06 / len(NON_SOV_MODES)
+
+    def test_land_use_scaled_by_mode_shift_fraction(self):
+        # T-1 is a land-use strategy (mode_shift_fraction 1/3): only 1/3 of its
+        # 0.09 reduction (0.03) is apportioned across its six target modes.
+        weights = generate_mode_shift_weights({"T-1": -0.09})
+        assert sum(weights.values()) == pytest.approx(0.03)
+        for mode in NON_SOV_MODES:
+            assert weights[mode] == pytest.approx(0.005)
 
     def test_target_modes_override(self):
         weights = generate_mode_shift_weights(
@@ -210,6 +229,16 @@ class TestEstimateModeSplit:
     def test_shares_sum_to_one(self):
         split = estimate_mode_split({"T-9": -0.06, "T-8": -0.02})
         assert sum(split.shares.values()) == pytest.approx(1.0)
+
+    def test_land_use_contributes_one_third_of_a_transit_measure(self):
+        # Equal-magnitude measures: the land-use measure (1/3) contributes a
+        # third of what the transit measure (1.0) does, confirming the scaling
+        # applies only to the land-use measure.
+        land_use = estimate_mode_split({"T-1": -0.09}).total_sov_reduction
+        transit = estimate_mode_split({"T-9": -0.09}).total_sov_reduction
+        assert land_use == pytest.approx(0.03)
+        assert transit == pytest.approx(0.09)
+        assert transit == pytest.approx(3 * land_use)
 
     def test_new_shares_conserve_total(self):
         baseline = {Mode.SOV: 0.80, Mode.HOV: 0.03, Mode.TRANSIT: 0.05,

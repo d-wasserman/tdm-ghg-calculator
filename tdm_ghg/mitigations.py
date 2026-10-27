@@ -29,6 +29,11 @@ _BIKE = Mode.BIKE          # bicycle + broader micromobility (e-bike, scooter)
 _WALK = Mode.WALK
 _ALLM = NON_SOV_MODES      # applies to all non-SOV modes (proportional split)
 
+# Fraction of a land-use strategy's VMT reduction treated as mode shift. Land-use
+# measures also cut VMT via shorter trips (distance) and fewer trips (frequency),
+# so only ~1/3 is apportioned to modes; the full value remains the VMT reduction.
+_LU_MSF = 1 / 3
+
 
 # ==============================================================================
 # LAND USE SUBSECTOR (Project/Site)
@@ -39,6 +44,7 @@ _ALLM = NON_SOV_MODES      # applies to all non-SOV modes (proportional split)
 @register_measure(
     measure_id="T-1",
     target_modes=_ALLM,
+    mode_shift_fraction=_LU_MSF,
     name="Increase Residential Density",
     subsector="land_use",
     scale=_PS,
@@ -54,6 +60,11 @@ def t1_increase_residential_density(
         typical_residential_density=9.1,
         elasticity_vmt_residential_density=-0.22):
     """Measure T-1: Increase Residential Density.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Accounts for the VMT reduction achieved by a project designed with a higher
     density of dwelling units compared to the average residential density in the U.S.
     Applies to project/site VMT in the study area.
@@ -85,6 +96,7 @@ def t1_increase_residential_density(
 @register_measure(
     measure_id="T-2",
     target_modes=_ALLM,
+    mode_shift_fraction=_LU_MSF,
     name="Increase Job Density",
     subsector="land_use",
     scale=_PS,
@@ -97,6 +109,11 @@ def t2_increase_job_density(
         typical_job_density=145,
         elasticity_vmt_job_density=-0.07):
     """Measure T-2: Increase Job Density.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Accounts for the VMT reduction achieved by a project designed with a higher
     density of jobs compared to the average job density in the U.S.
     Applies to project/site VMT in the study area.
@@ -128,6 +145,7 @@ def t2_increase_job_density(
 @register_measure(
     measure_id="T-3",
     target_modes={_TRAN},
+    mode_shift_fraction=_LU_MSF,
     name="Provide Transit-Oriented Development",
     subsector="land_use",
     scale=_PS,
@@ -142,6 +160,11 @@ def t3_provide_transit_oriented_development(
         tod_transit_ratio=4.9,
         tod_transit_share_cap=0.27):
     """Measure T-3: Provide Transit-Oriented Development.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Reduces project VMT by locating a project in a compact, walkable area with
     easy access to high-quality public transit (within 0.5-mile walk of a high
     frequency transit station). Applies to project/site VMT in the study area.
@@ -182,6 +205,7 @@ def t3_provide_transit_oriented_development(
 @register_measure(
     measure_id="T-4",
     target_modes=_ALLM,
+    mode_shift_fraction=_LU_MSF,
     name="Integrate Affordable and Below Market Rate Housing",
     subsector="land_use",
     scale=_PS,
@@ -193,6 +217,11 @@ def t4_integrate_affordable_housing(
         pct_multifamily_units_affordable,
         vmt_reduction_per_qualified_unit=-0.286):
     """Measure T-4: Integrate Affordable and Below Market Rate Housing.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Accounts for VMT reductions for multifamily residential projects where
     units are deed restricted or permanently dedicated as affordable housing
     (at or below 80% of area median income). Applies to project/site VMT.
@@ -223,6 +252,7 @@ def t4_integrate_affordable_housing(
 @register_measure(
     measure_id="T-55",
     target_modes=_ALLM,
+    mode_shift_fraction=_LU_MSF,
     name="Infill Development",
     subsector="land_use",
     scale=_PS,
@@ -237,6 +267,11 @@ def t55_infill_development(
         conventional_development_distance_to_downtown,
         elasticity_vmt_distance_to_downtown=-0.22):
     """Measure T-55: Infill Development.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Accounts for VMT reductions from infill housing development programs where
     residents live closer to downtown areas with greater access to jobs and
     activities. Requires rezoning commercial or industrial lots to high-density
@@ -947,6 +982,7 @@ def t16_unbundle_residential_parking_costs(
 @register_measure(
     measure_id="T-17",
     target_modes=_ALLM,
+    mode_shift_fraction=_LU_MSF,
     name="Improve Street Connectivity",
     subsector="land_use",
     scale=_PC,
@@ -958,6 +994,11 @@ def t17_improve_street_connectivity(
         avg_intersection_density=36.0,
         elasticity_vmt_intersection_density=-0.14):
     """Measure T-17: Improve Street Connectivity.
+
+    Mode-shift note: this measure's VMT reduction also stems from shorter trips
+    (distance) and fewer trips (frequency), not only mode shift. For mode-split
+    analysis the input is scaled by ``mode_shift_fraction`` (1/3 for land-use
+    strategies); the full value remains the correct VMT/GHG reduction.
     Increases street grid intersection density to reduce block sizes, shortening
     trip distances and enabling non-motorised mode shift. Higher connectivity
     correlates with lower per-capita VMT.

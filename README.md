@@ -254,6 +254,8 @@ split.new_mode_shares    # resulting shares after avoided SOV travel is redistri
 
 **Mode taxonomy** (`Mode`): `SOV`, `HOV`, `Transit`, `Bike` (incl. broader micromobility), `Walk`, `WFH`, `Other`. SOV is the source being reduced and is never a shift destination. Each measure's `target_modes` records where its avoided travel goes — a single mode (e.g. transit programs → `Transit`), a pair (active-modes-for-youth → `Bike`/`Walk`), or all non-SOV modes (`NON_SOV_MODES`, for general commute/land-use/pricing programs). Clean-vehicle measures (T-14, T-30) declare no target modes, so `implies_mode_shift` is `False`. When no baseline mode shares are supplied, a measure's reduction splits equally across its target modes.
 
+**Land-use mode-shift fraction.** A land-use strategy's VMT reduction comes partly from shorter trips (distance) and fewer trips (frequency), not only mode shift. Each measure carries a `mode_shift_fraction` that scales its contribution to the mode-split analysis only — land-use strategies (T-1, T-2, T-3, T-4, T-55, T-17) use `1/3`, every other measure (including parking/pricing) uses `1.0`. The **full** VMT reduction is still used for VMT, trips, and CO2.
+
 The `summarize(...)` helper returns a `DerivedMetrics` bundle (VMT, trips, tonnes, mode split) in one call. CO2 is reported in metric tonnes CO2e; pass `emission_factor_g_per_mile` to override the default light-duty factor.
 
 ## Key Concepts

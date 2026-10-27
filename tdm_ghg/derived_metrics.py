@@ -46,9 +46,12 @@ names: each measure declares the modes it shifts travel toward via
 ``MeasureMetadata.target_modes`` (see ``registry.py``) and whether it implies
 any mode shift at all via the derived ``implies_mode_shift`` property
 (clean-vehicle measures such as EV charging declare no target modes). A
-measure's reduction magnitude is apportioned across its target modes in
-proportion to those modes' baseline shares (falling back to an equal split when
-no baseline is supplied); SOV is always the source whose share shrinks.
+measure's reduction magnitude is first scaled by its ``mode_shift_fraction``
+(``1.0`` for most measures, ``1/3`` for land-use strategies whose VMT reduction
+also comes from shorter trips and fewer trips, not only mode shift), then
+apportioned across its target modes in proportion to those modes' baseline
+shares (falling back to an equal split when no baseline is supplied); SOV is
+always the source whose share shrinks.
 
 Examples
 --------
@@ -147,6 +150,15 @@ def trips_reduced(baseline_vmt, reduction_fraction, average_trip_distance):
     -------
     float
         Vehicle trips avoided (a positive magnitude).
+
+    Notes
+    -----
+    For land-use strategies, part of the VMT reduction comes from *shorter*
+    trips (distance) rather than *fewer* trips, so dividing the full reduction
+    by an average trip distance overstates trip elimination. This is the
+    trip-count analogue of the ``mode_shift_fraction`` caveat applied to
+    mode-split analysis; reduce the input accordingly if trip elimination is the
+    quantity of interest.
     """
     return trips_from_vmt(
         vmt_reduced(baseline_vmt, reduction_fraction), average_trip_distance
@@ -252,9 +264,12 @@ def generate_mode_shift_weights(
     (``MeasureMetadata.target_modes``) unless overridden. Measures with no
     target modes — clean-vehicle measures where ``implies_mode_shift`` is
     ``False`` — contribute nothing. Each measure's reduction magnitude
-    (``abs(fraction)``) is apportioned across its target modes in proportion to
-    those modes' baseline shares (equal split when no baseline is supplied; see
-    :func:`_apportion`), and the contributions are summed per mode.
+    (``abs(fraction)``) is first scaled by the measure's ``mode_shift_fraction``
+    (``1.0`` for most measures, ``1/3`` for land-use strategies whose VMT
+    reduction also reflects shorter/fewer trips), then apportioned across its
+    target modes in proportion to those modes' baseline shares (equal split when
+    no baseline is supplied; see :func:`_apportion`), and the contributions are
+    summed per mode.
 
     Parameters
     ----------
@@ -278,11 +293,15 @@ def generate_mode_shift_weights(
         magnitude = abs(float(fraction))
         if magnitude == 0.0:
             continue
+        meta = registry.get(measure)
         if measure in override:
             target_modes = override[measure]
         else:
-            meta = registry.get(measure)
             target_modes = meta.target_modes if meta is not None else ()
+        # Scale by the fraction of the reduction attributable to mode shift
+        # (land-use strategies < 1.0; the rest is trip-distance/-frequency).
+        if meta is not None:
+            magnitude *= meta.mode_shift_fraction
         for mode, amount in _apportion(
             magnitude, target_modes, baseline_mode_shares
         ).items():
@@ -327,11 +346,14 @@ def estimate_mode_split(
 ):
     """Estimate how avoided SOV travel redistributes across the other modes.
 
-    Each measure's reduction is apportioned across its declared ``target_modes``
-    in proportion to those modes' baseline shares (equal split without a
-    baseline) and summed per mode (:func:`generate_mode_shift_weights`). SOV is
-    the source: its share shrinks by the total and the destination modes grow.
-    The combination is additive; to combine the fractions with CAPCOA
+    Each measure's reduction is first scaled by its ``mode_shift_fraction``
+    (``1/3`` for land-use strategies, ``1.0`` otherwise), then apportioned across
+    its declared ``target_modes`` in proportion to those modes' baseline shares
+    (equal split without a baseline) and summed per mode
+    (:func:`generate_mode_shift_weights`). SOV is the source: its share shrinks
+    by the total and the destination modes grow. The combination is additive, so
+    ``total_sov_reduction`` need not equal the capped/dampened combined VMT
+    reduction used for trips and CO2; to combine the fractions with CAPCOA
     multiplicative dampening instead, pre-combine them with
     :func:`tdm_ghg.utils.multiplicative_dampening` before calling.
 

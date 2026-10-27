@@ -105,6 +105,12 @@ class MeasureMetadata:
         clean-vehicle measures that change emissions per mile without shifting
         mode declare an empty set. Used by ``tdm_ghg.derived_metrics`` for
         mode-shift estimation.
+    mode_shift_fraction : float
+        Fraction of this measure's VMT reduction attributable to mode shift,
+        as opposed to shorter trips (distance) or fewer trips (frequency).
+        Used only to scale the input to mode-split analysis (not VMT, trips, or
+        CO2). Defaults to ``1.0``; land-use strategies use ``1/3`` because much
+        of their reduction comes from trip-distance/-frequency change.
     """
     measure_id: str
     name: str
@@ -116,6 +122,7 @@ class MeasureMetadata:
     mutually_exclusive_with: frozenset
     func: Callable
     target_modes: frozenset = frozenset()
+    mode_shift_fraction: float = 1.0
 
     @property
     def implies_mode_shift(self) -> bool:
@@ -275,6 +282,7 @@ def register_measure(
     land_use_types: Optional[Collection[LandUseType]] = None,
     mutually_exclusive_with: Collection[str] = (),
     target_modes: Collection[Mode] = (),
+    mode_shift_fraction: float = 1.0,
 ) -> Callable:
     """Decorator that registers a measure function with the global registry.
 
@@ -300,6 +308,10 @@ def register_measure(
         Travel modes the measure shifts avoided auto travel toward (never
         ``Mode.SOV``). Use ``NON_SOV_MODES`` for measures that apply to all
         modes; leave empty for clean-vehicle measures with no mode shift.
+    mode_shift_fraction : float, optional
+        Fraction of the VMT reduction attributable to mode shift, used only to
+        scale the input to mode-split analysis. Defaults to ``1.0``; land-use
+        strategies use ``1/3``.
 
     Returns
     -------
@@ -320,6 +332,7 @@ def register_measure(
             mutually_exclusive_with=frozenset(mutually_exclusive_with),
             func=func,
             target_modes=frozenset(target_modes),
+            mode_shift_fraction=mode_shift_fraction,
         )
         registry.register(meta)
         return func
