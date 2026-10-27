@@ -98,11 +98,40 @@ Utilities
 ---------
     multiplicative_dampening
     registry               (MeasureRegistry — inspect all registered measures)
+
+Derived Metrics
+---------------
+Back-calculate absolute quantities from the library's percent reductions given
+supplementary baseline inputs (baseline VMT, average trip distance, emission
+factor, baseline mode shares)::
+
+    from tdm_ghg import run_multi_subsector, trips_reduced, co2_tonnes_reduced
+    from tdm_ghg import per_measure_reductions, estimate_mode_split, Mode
+
+    frac = run_multi_subsector(ctx)
+    trips = trips_reduced(baseline_vmt=1_000_000, reduction_fraction=frac,
+                          average_trip_distance=9.5)
+    tonnes = co2_tonnes_reduced(1_000_000, frac)
+    split = estimate_mode_split(per_measure_reductions(ctx),
+                                baseline_mode_shares={Mode.SOV: 0.80, Mode.HOV: 0.05,
+                                                      Mode.TRANSIT: 0.05, Mode.BIKE: 0.05,
+                                                      Mode.WALK: 0.05})
+
+Mode shift is driven by each measure's declared ``target_modes`` metadata; the
+avoided SOV travel is apportioned across a measure's target modes in proportion
+to their baseline shares.
 """
 
 # Context and registry — import order matters: context first, then registry,
 # then mitigations (which registers functions at import time).
-from tdm_ghg.context import LandUseType, LocationType, Scale, TDMContext
+from tdm_ghg.context import (
+    LandUseType,
+    LocationType,
+    Mode,
+    NON_SOV_MODES,
+    Scale,
+    TDMContext,
+)
 from tdm_ghg.registry import MeasureExclusivityError, MeasureSelectionError, registry
 
 # Importing mitigations registers all @register_measure functions.
@@ -164,6 +193,22 @@ from tdm_ghg.subsectors import (
 
 from tdm_ghg.utils import multiplicative_dampening
 
+from tdm_ghg.derived_metrics import (
+    DEFAULT_EMISSION_FACTOR_G_PER_MILE,
+    GRAMS_PER_METRIC_TON,
+    DerivedMetrics,
+    ModeSplit,
+    vmt_reduced,
+    trips_from_vmt,
+    trips_reduced,
+    co2_tonnes_from_vmt,
+    co2_tonnes_reduced,
+    generate_mode_shift_weights,
+    estimate_mode_split,
+    per_measure_reductions,
+    summarize,
+)
+
 __version__ = "0.2.1"
 __author__ = "David Wasserman"
 
@@ -172,6 +217,8 @@ __all__ = [
     "Scale",
     "LocationType",
     "LandUseType",
+    "Mode",
+    "NON_SOV_MODES",
     "TDMContext",
     # Registry
     "registry",
@@ -232,4 +279,18 @@ __all__ = [
     "MULTI_SUBSECTOR_CAP",
     # Utilities
     "multiplicative_dampening",
+    # Derived metrics
+    "DEFAULT_EMISSION_FACTOR_G_PER_MILE",
+    "GRAMS_PER_METRIC_TON",
+    "DerivedMetrics",
+    "ModeSplit",
+    "vmt_reduced",
+    "trips_from_vmt",
+    "trips_reduced",
+    "co2_tonnes_from_vmt",
+    "co2_tonnes_reduced",
+    "generate_mode_shift_weights",
+    "estimate_mode_split",
+    "per_measure_reductions",
+    "summarize",
 ]
